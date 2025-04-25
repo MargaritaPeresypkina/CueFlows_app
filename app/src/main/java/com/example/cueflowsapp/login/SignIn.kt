@@ -1,0 +1,300 @@
+package com.example.cueflowsapp.login
+
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.cueflowsapp.R
+import com.example.cueflowsapp.login.data.GetStartedDataObject
+import com.example.cueflowsapp.login.data.SignUpObject
+import com.example.cueflowsapp.ui.theme.BeidgeButtonContent
+import com.example.cueflowsapp.ui.theme.Blue1
+import com.example.cueflowsapp.ui.theme.Facebook2
+import com.example.cueflowsapp.ui.theme.Facebook21
+import com.example.cueflowsapp.ui.theme.FacebookDescription2
+import com.example.cueflowsapp.ui.theme.FailureContent
+import com.example.cueflowsapp.ui.theme.GoogleDescription2
+import com.example.cueflowsapp.ui.theme.Grey1
+import com.example.cueflowsapp.ui.theme.Grey2
+import com.example.cueflowsapp.ui.theme.Grey21
+import com.example.cueflowsapp.ui.theme.GreyBackField2
+import com.example.cueflowsapp.ui.theme.LightBlack2
+import com.example.cueflowsapp.ui.theme.PurpleButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
+@Composable
+fun SignIn(
+    onNavigateToPreviousScreen:() -> Unit,
+    onNavigateToGetStarted: (GetStartedDataObject) -> Unit,
+    onNavigateToSignUp: (SignUpObject) -> Unit
+) {
+    val auth = remember {Firebase.auth}
+
+    val errorState = remember { mutableStateOf("") }
+    val emailState = remember { mutableStateOf("") }
+    val passwordState = remember { mutableStateOf("")}
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White)
+    ){
+        Image(
+            painter = painterResource(id = R.drawable.background_sign),
+            contentDescription = "back",
+            modifier = Modifier.fillMaxHeight(0.4f).fillMaxWidth(),
+            alignment = Alignment.TopCenter,
+            contentScale = ContentScale.FillBounds
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 40.dp)
+        ){
+            Box(
+                modifier = Modifier
+                    .background(Color.Transparent, shape = CircleShape)
+                    .size(width = 55.dp, height = 55.dp)
+                    .border(
+                        width = 1.dp,
+                        shape = CircleShape,
+                        brush = Brush.linearGradient(listOf(Grey2, Grey2))
+                    )
+                    .clickable {
+                        onNavigateToPreviousScreen()
+                    },
+                contentAlignment = Alignment.Center
+            ){
+                Image(
+                    painter = painterResource(id = R.drawable.arrow),
+                    contentDescription = "arrow",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 15.dp, bottom = 30.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Welcome Back!",
+                    fontFamily = FontFamily(Font(R.font.inter_bold)),
+                    fontSize = 28.sp,
+                    color = LightBlack2
+                )
+            }
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth().padding(bottom = 17.dp).height(63.dp),
+                colors = ButtonColors(
+                    containerColor = Facebook2,
+                    contentColor = FacebookDescription2,
+                    disabledContainerColor = Facebook21,
+                    disabledContentColor = FacebookDescription2
+                ),
+                contentPadding = PaddingValues(vertical = 20.dp, horizontal = 35.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.facebook),
+                        contentDescription = "letterOfFacebook",
+                        alignment = Alignment.CenterStart,
+                        modifier = Modifier.padding(end = 45.dp)
+                    )
+                    Text(
+                        "CONTINUE WITH FACEBOOK",
+                        fontFamily = FontFamily(Font(R.font.inter_medium)),
+                        fontSize = 14.sp,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+            }
+
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth().padding(bottom = 30.dp).height(63.dp),
+                colors = ButtonColors(
+                    containerColor = Color.White,
+                    contentColor = GoogleDescription2,
+                    disabledContainerColor = Color.White,
+                    disabledContentColor = GoogleDescription2
+                ),
+                contentPadding = PaddingValues(vertical = 20.dp, horizontal = 30.dp),
+                border = BorderStroke(width = 1.dp, color = Grey2)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Image(
+                        painter = painterResource(id = R.drawable.google),
+                        contentDescription = "letterOfGoogle",
+                        alignment = Alignment.CenterStart,
+                        modifier = Modifier.padding(end = 40.dp)
+                    )
+                    Text(
+                        "CONTINUE WITH GOOGLE",
+                        fontFamily = FontFamily(Font(R.font.inter_medium)),
+                        fontSize = 14.sp,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+            }
+
+            Text(
+                "OR LOG IN WITH EMAIL",
+                modifier = Modifier.fillMaxWidth().padding(bottom = 30.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.inter_bold)),
+                color = Grey21
+            )
+
+            RoundedCornerTextField(
+                text = emailState.value,
+                label = "Email address"
+            ){
+                emailState.value = it
+            }
+
+            RoundedCornerTextField(
+                text = passwordState.value,
+                label = "Password"
+            ){
+                passwordState.value = it
+            }
+
+            if(errorState.value.isNotEmpty()){
+                Text(
+                    text = errorState.value,
+                    fontFamily = FontFamily(Font(R.font.inter_regular)),
+                    fontSize = 12.sp,
+                    color = FailureContent,
+                    letterSpacing = 0.5.sp,
+                    modifier = Modifier.padding(bottom = 17.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            LoginButton(text = "LOG IN"){
+                signIn(
+                    auth,
+                    emailState.value,
+                    passwordState.value,
+                    onSignInSuccess = { navData ->
+                        onNavigateToGetStarted(navData)
+                    },
+                    onSignInFailure = { error ->
+                        errorState.value = error
+                    }
+                )
+                emailState.value = ""
+                passwordState.value = ""
+            }
+
+            Text(
+                "Forgot Password?",
+                modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp),
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                fontSize = 14.sp,
+                letterSpacing = 0.5.sp,
+                color = GoogleDescription2
+            )
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "DON'T HAVE AN ACCOUNT YET?",
+                    fontFamily = FontFamily(Font(R.font.inter_medium)),
+                    color = Grey1,
+                    modifier = Modifier.padding(end = 5.dp),
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "SIGN UP",
+                    fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                    color = Blue1,
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable {
+                        onNavigateToSignUp(SignUpObject)
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun signIn(
+    auth: FirebaseAuth,
+    email: String,
+    password: String,
+    onSignInSuccess: (GetStartedDataObject) -> Unit,
+    onSignInFailure: (String) -> Unit
+){
+    if(email.isBlank() || password.isBlank()){
+        onSignInFailure("Email and password cannot be empty")
+        return
+    }
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener {
+            if(it.isSuccessful){
+                Log.d("MyLog", "Sign In Successful")
+            } else {
+                Log.d("MyLog", "Sign In Failure")
+            }
+        }
+        .addOnCompleteListener{ task ->
+            if(task.isSuccessful) onSignInSuccess(
+                GetStartedDataObject(
+                    task.result.user?.uid!!,
+                    task.result.user?.email!!,
+                    //task.result.user?.displayName!!
+                )
+            )
+        }
+        .addOnFailureListener{
+            onSignInFailure(it.message ?: "Sign In Error")
+        }
+}

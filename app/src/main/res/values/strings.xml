@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CueFlowsApp</string>
+    <string name="title_activity_first_screen">FirstScreen</string>
+</resources>
