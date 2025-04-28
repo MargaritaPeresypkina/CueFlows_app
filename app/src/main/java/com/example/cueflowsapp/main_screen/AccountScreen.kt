@@ -37,16 +37,17 @@ fun AccountScreen() {
         Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick= {
-                //signOut(auth)
+                signOut(auth)
             },
             modifier = Modifier.fillMaxWidth()
         ){
             Text("sign out")
+
         }
         Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick= {
-                //deleteAccount(auth, emailState.value, passwordState.value)
+                deleteAccount(auth, emailState.value, passwordState.value)
             },
             modifier = Modifier.fillMaxWidth()
         ){

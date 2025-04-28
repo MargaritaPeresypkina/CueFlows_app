@@ -19,6 +19,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "GOOGLE_API_KEY", "\"${project.properties["GOOGLE_API_KEY"]}\"")
     }
 
     buildTypes {
@@ -40,8 +41,10 @@ android {
     buildFeatures {
         compose = true
         //viewBinding = true
+        buildConfig = true
     }
 }
+
 
 dependencies {
     implementation(libs.navigation.testing)

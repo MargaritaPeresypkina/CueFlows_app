@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+google-services.json
+# Kotlin compiler sessions
+.kotlin/
+
+# BFG Repo Cleaner
+app/bfg/

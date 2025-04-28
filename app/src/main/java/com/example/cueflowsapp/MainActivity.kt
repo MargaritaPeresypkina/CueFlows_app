@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,9 +15,13 @@ import com.example.cueflowsapp.login.data.GetStartedDataObject
 import com.example.cueflowsapp.login.data.SignInObject
 import com.example.cueflowsapp.login.data.SignUpObject
 import com.example.cueflowsapp.login.data.StartScreenObject
+import com.example.cueflowsapp.main_screen.AccountScreen
 import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
+import com.example.cueflowsapp.main_screen.data.AccountScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.TextDocs
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsObject
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -29,6 +32,7 @@ class MainActivity : ComponentActivity() {
         val fs = Firebase.firestore
         enableEdgeToEdge()
         setContent {
+            MainScreen()
             val navController = rememberNavController()
 
             NavHost(
@@ -37,31 +41,31 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable<StartScreenObject>{
                     FirstScreen(
-                        onNavigateToSignIn = { navController.navigate(SignInObject) },
-                        onNavigateToSignUp = { navController.navigate(SignUpObject) }
+                        onNavigateToSignIn = { navController.navigate(route = SignInObject) },
+                        onNavigateToSignUp = { navController.navigate(route = SignUpObject) }
                     )
                 }
                 composable<SignInObject> {
                     SignIn(
                         onNavigateToPreviousScreen = { navController.popBackStack()},
                         onNavigateToGetStarted = { navData ->
-                            navController.navigate(navData)
+                            navController.navigate(route = navData)
                         },
-                        onNavigateToSignUp = {navController.navigate(SignUpObject)}
+                        onNavigateToSignUp = {navController.navigate(route = SignUpObject)}
                     )
                 }
                 composable<SignUpObject> {
                     SignUp(
                         onNavigateToPreviousScreen = { navController.popBackStack()},
                         onNavigateToGetStarted = { navData ->
-                            navController.navigate(navData)}
+                            navController.navigate(route = navData)}
                     )
                 }
                 composable<GetStartedDataObject> { navEntry ->
                     val navData = navEntry.toRoute<GetStartedDataObject>()
                     GetStarted(
                         onNavigateToLibraryScreen = {
-                            navController.navigate(
+                            navController.navigate( route =
                                 MainScreenDataObject(
                                     navData.uid,
                                     navData.email,
@@ -71,8 +75,16 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 composable<MainScreenDataObject> { navEntry ->
-                    val navData = navEntry.toRoute<MainScreenDataObject>()
+                    val mainScreen: MainScreenDataObject  = navEntry.toRoute()
                     MainScreen()
+                }
+                composable<TextDocsObject> {
+                    TextDocs()
+                }
+                composable<AccountScreenObject> {
+                    AccountScreen(
+
+                    )
                 }
             }
 
