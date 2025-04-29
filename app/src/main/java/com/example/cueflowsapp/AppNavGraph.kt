@@ -1,9 +1,7 @@
 package com.example.cueflowsapp
 
-import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,15 +15,12 @@ import com.example.cueflowsapp.login.data.SignUpObject
 import com.example.cueflowsapp.login.data.StartScreenObject
 import com.example.cueflowsapp.main_screen.AccountScreen
 import com.example.cueflowsapp.main_screen.GetStarted
-import com.example.cueflowsapp.main_screen.LibraryScreen
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
-import com.example.cueflowsapp.main_screen.data.LibraryObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
-import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButton
-import com.example.cueflowsapp.main_screen.parcing.ParsingScreen
-import com.example.cueflowsapp.main_screen.parcing.ParsingScreen.Text
 import com.example.cueflowsapp.main_screen.parcing.TextDocs
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsDataObject
 
 
@@ -79,10 +74,17 @@ fun AppNavGraph(navController: NavHostController) {
             AccountScreen()
         }
 
-        composable<TextDocsDataObject>{ navEntry ->
+        composable<TextDocsDataObject> { navEntry ->
             val navData = navEntry.toRoute<TextDocsDataObject>()
-            TextDocs(navData.string)
+            val screenData = remember(navData.screenId) {
+                DynamicScreenObjectsDataLeft.find { it.screenName == navData.screenId }
+                    ?: DynamicScreenObjectsDataRight.find { it.screenName == navData.screenId }
+                    ?: error("Screen not found")
+            }
+            TextDocs(
+                content = screenData,
+                onNavigateToPreviousScreen = { navController.popBackStack() }
+            )
         }
-
     }
 }

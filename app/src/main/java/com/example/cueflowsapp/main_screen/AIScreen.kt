@@ -25,6 +25,6 @@ fun AIScreen() {
             .background(color = Color.White)
             .padding(top = 50.dp, bottom = 0.dp,  start = 20.dp, end = 20.dp)
     ){
-        Text("Hello, ${auth.currentUser?.displayName} /n it is AI")
+        Text("Hello, ${auth.currentUser?.displayName} it is AI")
     }
 }

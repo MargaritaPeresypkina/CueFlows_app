@@ -3,7 +3,6 @@ package com.example.cueflowsapp.main_screen
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +35,8 @@ import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButton
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListLeft
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListRight
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsDataObject
 import com.example.cueflowsapp.ui.theme.Grey1
 import com.example.cueflowsapp.ui.theme.LightBlack2
@@ -45,7 +46,6 @@ import com.google.firebase.ktx.Firebase
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-//@Preview(showBackground = true)
 @Composable
 fun LibraryScreen(rootNavController: NavHostController) {
     val auth = Firebase.auth
@@ -144,7 +144,11 @@ fun LibraryScreen(rootNavController: NavHostController) {
                                 background = data.background,
                                 textColor = data.textColor,
                                 onClick = {
-                                    rootNavController.navigate(TextDocsDataObject(data.text))
+                                    val screenData = DynamicScreenObjectsDataLeft.find { it.screenName == data.text }
+                                    screenData?.let {
+                                        // put screen id
+                                        rootNavController.navigate(TextDocsDataObject(it.screenName))
+                                    }
                                 }
                             )
                             Spacer(modifier = Modifier.height(15.dp))
@@ -154,19 +158,22 @@ fun LibraryScreen(rootNavController: NavHostController) {
                     Column{
                         LibraryButtonsListRight.forEach { data ->
                         val height = if(data.isLarge) heightWithDpForLargeButton else heightWithDpForLittleButton
-                            LibraryButton(
-                                height = height,
-                                text = data.text,
-                                image = data.image,
-                                background = data.background,
-                                textColor = data.textColor,
-                                onClick = {
-                                    rootNavController.navigate(TextDocsDataObject(data.text))
+                        LibraryButton(
+                            height = height,
+                            text = data.text,
+                            image = data.image,
+                            background = data.background,
+                            textColor = data.textColor,
+                            onClick ={
+                                val screenData = DynamicScreenObjectsDataRight.find { it.screenName == data.text }
+                                screenData?.let {
+                                    // put screen id
+                                    rootNavController.navigate(TextDocsDataObject(it.screenName))
                                 }
-                            )
-                            Spacer(modifier = Modifier.height(15.dp))
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
                         }
-
                     }
                 }
             }

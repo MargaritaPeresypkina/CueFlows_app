@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TextDocsDataObject(
-    val string: String
+    val screenId: String
 )
