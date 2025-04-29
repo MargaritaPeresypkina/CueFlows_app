@@ -1,5 +1,6 @@
-package com.example.cueflowsapp.main_screen.parcing.text_parsing
+package com.example.cueflowsapp.main_screen.parcing
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,9 +45,11 @@ import com.example.cueflowsapp.ui.theme.TextDocsSecondDesc
 import com.example.cueflowsapp.ui.theme.TxtButton
 import com.example.cueflowsapp.ui.theme.WhiteReturnButton
 
-@Preview(showBackground = true)
+@SuppressLint("ConfigurationScreenWidthHeight")
+//@Preview(showBackground = true)
 @Composable
 fun TextDocs(
+    string: String
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -108,7 +111,8 @@ fun TextDocs(
                 modifier = Modifier.fillMaxWidth().padding(start = 37.dp, end = 37.dp, top = 28.dp)
             ) {
                 Text(
-                    "Text and Documents",
+                    string,
+                    //"Text and Documents",
                     color = TextDocsBlack,
                     fontFamily = FontFamily(Font(R.font.inter_bold)),
                     fontSize = 30.sp

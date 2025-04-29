@@ -3,6 +3,7 @@ package com.example.cueflowsapp.main_screen.data.library_buttons
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,8 +31,9 @@ fun LibraryButton(
     height: Dp,
     text: String,
     @DrawableRes image: Int,
-    background: Color ,
-    textColor: Color
+    background: Color,
+    textColor: Color,
+    onClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -43,7 +45,10 @@ fun LibraryButton(
             .height(height)
             .width((screenWidthDp - (horizontalSpacing * 2 + spacing)) / 2)
             .clip(shape = RoundedCornerShape(10.dp))
-            .background(color = background),
+            .background(color = background)
+            .clickable{
+                onClick()
+            },
         verticalArrangement = Arrangement.SpaceBetween
     ){
         Image(
