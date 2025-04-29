@@ -28,7 +28,9 @@ class MainActivity : ComponentActivity() {
                         uid = currentUser.uid,
                         email = currentUser.email ?: "",
                         username = currentUser.displayName ?: ""
-                    ))
+                    )) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 } else {
                     navController.navigate(StartScreenObject) {
                         popUpTo(0) { inclusive = true }
