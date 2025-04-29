@@ -30,7 +30,9 @@ class MainActivity : ComponentActivity() {
                         username = currentUser.displayName ?: ""
                     ))
                 } else {
-                    navController.navigate(StartScreenObject)
+                    navController.navigate(StartScreenObject) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
             AppNavGraph(navController = navController)
