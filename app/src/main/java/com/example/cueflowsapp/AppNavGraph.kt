@@ -18,10 +18,10 @@ import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
-import com.example.cueflowsapp.main_screen.parcing.TextDocs
+import com.example.cueflowsapp.main_screen.parcing.DynamicScreen
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenDataObject
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsDataObject
 
 
 @Composable
@@ -74,14 +74,14 @@ fun AppNavGraph(navController: NavHostController) {
             AccountScreen()
         }
 
-        composable<TextDocsDataObject> { navEntry ->
-            val navData = navEntry.toRoute<TextDocsDataObject>()
+        composable< DynamicScreenDataObject> { navEntry ->
+            val navData = navEntry.toRoute<DynamicScreenDataObject>()
             val screenData = remember(navData.screenId) {
                 DynamicScreenObjectsDataLeft.find { it.screenName == navData.screenId }
                     ?: DynamicScreenObjectsDataRight.find { it.screenName == navData.screenId }
                     ?: error("Screen not found")
             }
-            TextDocs(
+            DynamicScreen(
                 content = screenData,
                 onNavigateToPreviousScreen = { navController.popBackStack() }
             )

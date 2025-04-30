@@ -8,7 +8,6 @@ import com.example.cueflowsapp.main_screen.AIScreen
 import com.example.cueflowsapp.main_screen.AccountScreen
 import com.example.cueflowsapp.main_screen.LibraryScreen
 import com.example.cueflowsapp.main_screen.ListScreen
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsDataObject
 
 @Composable
 fun BottomNavGraph(

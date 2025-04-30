@@ -35,9 +35,9 @@ import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButton
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListLeft
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListRight
+import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenDataObject
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
 import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.TextDocsDataObject
 import com.example.cueflowsapp.ui.theme.Grey1
 import com.example.cueflowsapp.ui.theme.LightBlack2
 import com.google.firebase.auth.ktx.auth
@@ -147,7 +147,7 @@ fun LibraryScreen(rootNavController: NavHostController) {
                                     val screenData = DynamicScreenObjectsDataLeft.find { it.screenName == data.text }
                                     screenData?.let {
                                         // put screen id
-                                        rootNavController.navigate(TextDocsDataObject(it.screenName))
+                                        rootNavController.navigate(DynamicScreenDataObject(it.screenName))
                                     }
                                 }
                             )
@@ -168,7 +168,7 @@ fun LibraryScreen(rootNavController: NavHostController) {
                                 val screenData = DynamicScreenObjectsDataRight.find { it.screenName == data.text }
                                 screenData?.let {
                                     // put screen id
-                                    rootNavController.navigate(TextDocsDataObject(it.screenName))
+                                    rootNavController.navigate(DynamicScreenDataObject(it.screenName))
                                 }
                             }
                         )

@@ -40,9 +40,8 @@ import com.example.cueflowsapp.ui.theme.TextDocsGray
 import com.example.cueflowsapp.ui.theme.WhiteReturnButton
 
 @SuppressLint("ConfigurationScreenWidthHeight")
-//@Preview(showBackground = true)
 @Composable
-fun TextDocs(
+fun DynamicScreen(
     content: DynamicScreenObject,
     onNavigateToPreviousScreen: () -> Unit,
 
