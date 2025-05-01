@@ -60,6 +60,9 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.runtime.livedata)
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.compose.material3)
     implementation(libs.compose.navigation)

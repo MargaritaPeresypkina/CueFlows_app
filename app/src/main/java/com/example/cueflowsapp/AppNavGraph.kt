@@ -18,10 +18,10 @@ import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
-import com.example.cueflowsapp.main_screen.parcing.DynamicScreen
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenDataObject
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.DynamicScreen
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenDataObject
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataLeft
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataRight
 
 
 @Composable
@@ -74,7 +74,7 @@ fun AppNavGraph(navController: NavHostController) {
             AccountScreen()
         }
 
-        composable< DynamicScreenDataObject> { navEntry ->
+        composable<DynamicScreenDataObject> { navEntry ->
             val navData = navEntry.toRoute<DynamicScreenDataObject>()
             val screenData = remember(navData.screenId) {
                 DynamicScreenObjectsDataLeft.find { it.screenName == navData.screenId }

@@ -35,9 +35,9 @@ import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButton
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListLeft
 import com.example.cueflowsapp.main_screen.data.library_buttons.LibraryButtonsListRight
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenDataObject
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataLeft
-import com.example.cueflowsapp.main_screen.parcing.text_parsing.data.DynamicScreenObjectsDataRight
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenDataObject
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataLeft
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataRight
 import com.example.cueflowsapp.ui.theme.Grey1
 import com.example.cueflowsapp.ui.theme.LightBlack2
 import com.google.firebase.auth.ktx.auth

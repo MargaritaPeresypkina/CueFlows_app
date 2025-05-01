@@ -1,4 +1,4 @@
-package com.example.cueflowsapp.main_screen.parcing.text_parsing.data
+package com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data
 
 import com.example.cueflowsapp.R
 
