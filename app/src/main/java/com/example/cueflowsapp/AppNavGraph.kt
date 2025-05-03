@@ -18,6 +18,8 @@ import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
+import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.DocumentViewerScreen
+import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.NavRoutes
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.DynamicScreen
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenDataObject
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataLeft
@@ -83,6 +85,9 @@ fun AppNavGraph(navController: NavHostController) {
             }
             DynamicScreen(
                 content = screenData,
+                onNavigateToDocumentViewer = { documentViewer ->
+                    navController.navigate(documentViewer)
+                },
                 onNavigateToPreviousScreen = { navController.popBackStack() }
             )
         }

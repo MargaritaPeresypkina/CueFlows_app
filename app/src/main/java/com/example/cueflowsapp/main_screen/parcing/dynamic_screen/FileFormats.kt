@@ -7,7 +7,7 @@ object FileFormats {
         "pdf" to "application/pdf",
         "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 
-        //youtube
+        "youtube" to "video/mp4",
         "mp4" to "video/mp4",
 
         "jpeg" to "image/jpeg",

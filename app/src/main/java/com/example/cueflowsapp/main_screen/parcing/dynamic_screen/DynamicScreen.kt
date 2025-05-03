@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
+import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.FormatMapper.toDocumentFormat
+import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.NavRoutes
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.components.ButtonsBlock
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.ActionButton
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObject
@@ -49,6 +51,7 @@ import com.example.cueflowsapp.ui.theme.WhiteReturnButton
 fun DynamicScreen(
     content: DynamicScreenObject,
     onNavigateToPreviousScreen: () -> Unit,
+    onNavigateToDocumentViewer: (NavRoutes.DocumentViewer) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -63,23 +66,41 @@ fun DynamicScreen(
         val viewModel: FileUploadViewModel = viewModel()
         val uploadState = viewModel.uploadState.observeAsState(UploadState())
 
+        var isLoading by remember { mutableStateOf(false) }
+        var errorMessage by remember { mutableStateOf<String?>(null) }
+
         val filePickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),
             onResult = { uri ->
-                uri?.let {
-                    try {
-                        val fileNameFromUri = getFileNameFromUri(context, uri)
+                if (uri == null) {
+                    // Пользователь отменил выбор файла
+                    errorMessage = "File selection cancelled"
+                    return@rememberLauncherForActivityResult
+                }
+                isLoading = true
+                errorMessage = null
 
-                        val fileExtension = fileNameFromUri.substringAfterLast(".", "").lowercase()
+                try {
+                    val fileNameFromUri = getFileNameFromUri(context, uri)
+                    val fileExtension = fileNameFromUri.substringAfterLast(".", "").lowercase()
+                    val formatType = fileExtension.toDocumentFormat()
 
-                        if(currentButton?.destination?.lowercase() == fileExtension){
-                            viewModel.updateUploadState(isUploaded = true, fileName = fileNameFromUri)
-                        } else {
-                            // Показать сообщение об ошибке формата
-                        }
-                    } catch (e: Exception) {
-                        Log.e("FileUpload", "Error reading file", e)
+                    if (currentButton?.destination?.lowercase() == fileExtension && formatType != null) {
+                        viewModel.updateUploadState(
+                            isUploaded = true,
+                            fileName = fileNameFromUri,
+                            fileUri = uri.toString(),
+                            backgroundColor = currentButton!!.backColor,
+                            formatType = formatType
+                        )
+                    } else {
+                        errorMessage = "Invalid file format. Please upload ${currentButton?.destination} file."
                     }
+                } catch (e: Exception) {
+                    errorMessage = "Error uploading file: ${e.localizedMessage}"
+                    Log.e("FileUpload", "Error reading file", e)
+                } finally {
+                    isLoading = false
                 }
             }
         )
@@ -88,6 +109,7 @@ fun DynamicScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.White)
+
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth()
@@ -226,18 +248,47 @@ fun DynamicScreen(
             }
         }
         if(showUploadDialog.value){
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+                    .clickable(enabled = false) {} // Блокирующий слой
+            )
             FileUploadDialog(
                 isFileUploaded = uploadState.value.isUploaded,
                 fileName = uploadState.value.fileName,
-                dialogName = currentButton?.text ?: "file extension",
+                dialogName = currentButton?.text ?: "file",
                 onUploadClick = {
                     currentButton?.let { button ->
                         val mimeType = FileFormats.getMimeType(button.destination)
                         filePickerLauncher.launch(mimeType)
                     }
                 },
-                onNextStepClick = {showUploadDialog.value = false},
-                onDismiss = { showUploadDialog.value = false }
+                onNextStepClick = {
+                    uploadState.value.let { state ->
+                        if (state.isUploaded && state.fileUri != null && state.backgroundColor != null && state.formatType != null) {
+                            onNavigateToDocumentViewer(
+                                NavRoutes.DocumentViewer(
+                                    fileUri = state.fileUri,
+                                    fileName = state.fileName ?: "Document",
+                                    backgroundColor = state.backgroundColor,
+                                    formatType = state.formatType
+                                )
+                            )
+                        }
+                    }
+                    showUploadDialog.value = false
+                    viewModel.resetUploadState()
+                    errorMessage = null
+                },
+                onDismiss = {
+                    showUploadDialog.value = false
+                    viewModel.resetUploadState()
+                    errorMessage = null
+                            },
+                isLoading = isLoading,
+                errorMessage = errorMessage
+
             )
         }
     }
