@@ -86,5 +86,16 @@ fun AppNavGraph(navController: NavHostController) {
                 onNavigateToPreviousScreen = { navController.popBackStack() }
             )
         }
+
+        composable<NavRoutes.DocumentViewer> { navEntry ->
+            val navData = navEntry.toRoute<NavRoutes.DocumentViewer>()
+            DocumentViewerScreen(
+                fileUri = navData.fileUri,
+                fileName = navData.fileName,
+                backgroundColor = navData.backgroundColor,
+                formatType = navData.formatType,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }
