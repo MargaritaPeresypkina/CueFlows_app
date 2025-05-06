@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -179,11 +180,40 @@ private fun UploadedStateContent(
                     .padding(horizontal = 18.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                 val MAX_FILE_NAME_LINES = 3
+                 val MAX_TOTAL_LINES = 4
+
+                val suffix = " was uploaded"
+
+                if (fileName == null) {
+                    Text(
+                        text = "File was uploaded",
+                        fontFamily = FontFamily(Font(R.font.inter_light)),
+                        fontSize = 12.sp,
+                        color = DarkGrey1,
+                        maxLines = MAX_TOTAL_LINES,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    )
+                    return
+                }
+
+                val fullText = "$fileName$suffix"
+
+                val maxFileNameLength = fileName.length - (fileName.length * MAX_FILE_NAME_LINES / MAX_TOTAL_LINES)
+
                 Text(
-                    "$fileName was uploaded",
+                    text = if (fileName.length > maxFileNameLength) {
+                        "${fileName.take(maxFileNameLength)}...$suffix"
+                    } else {
+                        fullText
+                    },
                     fontFamily = FontFamily(Font(R.font.inter_light)),
                     fontSize = 12.sp,
-                    color = DarkGrey1
+                    color = DarkGrey1,
+                    maxLines = MAX_TOTAL_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(0.8f)
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.tick_green),
@@ -191,6 +221,7 @@ private fun UploadedStateContent(
                     tint = Color(0xFF6CB28E),
                     modifier = Modifier.size(18.dp)
                 )
+                }
             }
         }
 
@@ -208,7 +239,7 @@ private fun UploadedStateContent(
             textAlign = TextAlign.Center
         )
     }
-}
+
 
 @Composable
 private fun InitialStateContent(onUploadClick: () -> Unit) {

@@ -1,6 +1,8 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs
 
+import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +17,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -31,8 +39,9 @@ import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.optionButtons
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.components.OptionButton
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.data.TextDocsContent
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsImageContent
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsTableView
-import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.parserTextDocsContent
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.parseTextDocsContent
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readPdfFile
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readTxtFile
 
@@ -42,7 +51,7 @@ fun TextFileContent(uri: Uri, format: String) {
     val content = remember {
         when(format) {
             "txt" -> listOf(TextDocsContent.Paragraph(readTxtFile(uri, context)))
-            "docx" -> parserTextDocsContent(uri, context)
+            "docx" -> parseTextDocsContent(uri, context)
             "pdf" -> listOf(TextDocsContent.Paragraph(readPdfFile(uri, context)))
             else -> listOf(TextDocsContent.Paragraph("error in text format reading"))
         }
@@ -82,36 +91,71 @@ fun TextFileContent(uri: Uri, format: String) {
                 .weight(1f)
                 .padding(horizontal = 18.dp)
         ) {
-            items(content) { item ->
+            itemsIndexed(content) { index, item ->
                 when (item) {
+                    is TextDocsContent.Image -> {
+                        FullWidthImage(image = item)
+                        if (index < content.lastIndex && content[index + 1] !is TextDocsContent.Image) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
                     is TextDocsContent.Paragraph -> {
                         Text(
-                            item.text,
-                            fontFamily = FontFamily(Font(R.font.inter_regular)),
-                            color = Color(0xFF6B6D78),
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            text = item.text,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
                         )
+                        if (index < content.lastIndex) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                     is TextDocsContent.Table -> {
-                        TextDocsTableView(item)
-                        Spacer(Modifier.height(16.dp))
-                    }
-                    is TextDocsContent.Image -> {
-                        Text(
-                            "[Image content]",
-                            fontFamily = FontFamily(Font(R.font.inter_regular)),
-                            color = Color(0xFF6B6D78),
-                            fontSize = 14.sp,
-                            fontStyle = FontStyle.Italic
-                        )
+                        TextDocsTableView(table = item)
+                        if (index < content.lastIndex) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
-            item{
-                Spacer(Modifier.height(30.dp))
-            }
+        }
+    }
+}
+
+@Composable
+fun FullWidthImage(image: TextDocsContent.Image) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val density = LocalDensity.current
+
+    val bitmap = remember(image.data) {
+        BitmapFactory.decodeByteArray(image.data, 0, image.data.size)
+    }
+
+    val imageHeight = remember(bitmap, screenWidth) {
+        bitmap?.let {
+            val aspectRatio = it.height.toFloat() / it.width.toFloat()
+            (screenWidth.value * aspectRatio).dp
+        } ?: 0.dp
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(imageHeight)
+    ) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Document image",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            Text(
+                "Could not load image",
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

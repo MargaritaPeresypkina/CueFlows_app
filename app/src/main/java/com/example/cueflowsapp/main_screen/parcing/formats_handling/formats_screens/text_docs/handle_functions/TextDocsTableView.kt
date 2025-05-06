@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,35 +28,41 @@ fun TextDocsTableView(table: TextDocsContent.Table) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .border(width = 1.dp,
-                color = Color(0xFF9FA1B0),
-                shape = RectangleShape
-            ),
-                verticalArrangement = Arrangement.spacedBy(1.dp)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFE0E0E0),
+                shape = RoundedCornerShape(4.dp)
+            )
     ) {
-                table.rows.forEachIndexed { index, row ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (index % 2 == 0) Color.White else Color(0xFFF5F5F5)
+        table.rows.forEachIndexed { rowIndex, row ->
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(if (rowIndex == 0) Color(0xFFF5F5F5)
+                        else if (rowIndex % 2 == 1) Color.White
+                        else Color(0xFFFAFAFA))
+                ) {
+                    row.forEach { cellContent ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(12.dp)
+                        ) {
+                            Text(
+                                text = cellContent,
+                                fontSize = 14.sp,
+                                color = if (rowIndex == 0) Color(0xFF343434)
+                                else Color(0xFF6B6D78),
+                                fontFamily = if (rowIndex == 0) FontFamily(Font(R.font.inter_semibold))
+                                else FontFamily(Font(R.font.inter_regular))
                             )
-                    ) {
-                        row.forEach { cell ->
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(vertical = 12.dp, horizontal = 8.dp)
-                            ) {
-                                Text(
-                                    text = cell,
-                                    fontSize = 14.sp,
-                                    color = Color(0xFF343434),
-                                    fontFamily = FontFamily(Font(R.font.inter_regular))
-                                )
-                            }
                         }
                     }
                 }
+                if (rowIndex < table.rows.size - 1) {
+                    Divider(color = Color(0xFFF5F5F5), thickness = 1.dp)
+                }
             }
+        }
+    }
 }
