@@ -8,14 +8,14 @@ val DynamicScreenObjectsDataLeft = listOf(
         title = "Video",
         titleColor = 0xFF0B183A.toInt(),
         image = R.drawable.video_header,
-        firstButtons = listOf(
-            ActionButton(
-                text = "YouTube",
-                destination = "youtube",
-                backColor = 0xFFE24A59.toInt(),
-                informationAbout = ""
-            )
-        ),
+//        firstButtons = listOf(
+//            ActionButton(
+//                text = "YouTube",
+//                destination = "youtube",
+//                backColor = 0xFFE24A59.toInt(),
+//                informationAbout = ""
+//            )
+//        ),
         secondSubtitle = "Video format",
         secondSubtitleColor = 0xFF00060E.toInt(),
         secondButtons = listOf(
@@ -158,12 +158,12 @@ val DynamicScreenObjectsDataRight = listOf(
         firstSubtitle = "Text format",
         firstSubtitleColor = 0xFF00060E.toInt(),
         firstButtons = listOf(
-            ActionButton(
-                text = ".rtf",
-                destination = "rtf",
-                backColor = 0xFF5B96C9.toInt(),
-                informationAbout = ""
-            ),
+//            ActionButton(
+//                text = ".rtf",
+//                destination = "rtf",
+//                backColor = 0xFF5B96C9.toInt(),
+//                informationAbout = ""
+//            ),
             ActionButton(
                 text = ".txt",
                 destination = "txt",
@@ -217,7 +217,7 @@ val DynamicScreenObjectsDataRight = listOf(
                 informationAbout = ""
             ),
             ActionButton(
-                text = ".gif?",
+                text = ".gif",
                 destination = "gif",
                 backColor = 0xFFEE7B1E.toInt(),
                 informationAbout = ""
@@ -235,7 +235,7 @@ val DynamicScreenObjectsDataRight = listOf(
                 informationAbout = ""
             ),
             ActionButton(
-                text = ".pdf??",
+                text = ".pdf",
                 destination = "pdf_image",
                 backColor = 0xFFFFA713.toInt(),
                 informationAbout = ""

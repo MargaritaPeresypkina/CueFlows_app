@@ -15,7 +15,7 @@ val LightGrey1 = Color(0xFFA1A4B2)
 val BeidgeButtonContent = Color(0xFFF6F1FB)
 val PurpleButton = Color(0xFFBC78E6)
 val Beidge11 = Color(0xFFF6F1FB)
-val Purple1 = Color(0xFF7E43B4)
+val Purple1 = Color(0xFFFFFFFF)
 val Grey1 = Color(0xFFA1A4B2)
 val Blue1 = Color(0xFF8E97FD)
 

@@ -18,12 +18,14 @@ import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
-import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.DocumentViewerScreen
-import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.NavRoutes
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.NavRoutes
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.SelectFileOptionScreen
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.DynamicScreen
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenDataObject
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataLeft
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObjectsDataRight
+import com.example.cueflowsapp.splash_screen.SplashScreen
+import com.example.cueflowsapp.splash_screen.SplashScreenObject
 
 
 @Composable
@@ -31,8 +33,11 @@ fun AppNavGraph(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = StartScreenObject
+        startDestination = SplashScreenObject
     ) {
+        composable<SplashScreenObject> {
+            SplashScreen()
+        }
         composable<StartScreenObject>{
             FirstScreen(
                 onNavigateToSignIn = { navController.navigate(route = SignInObject) },
@@ -94,7 +99,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable<NavRoutes.DocumentViewer> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.DocumentViewer>()
-            DocumentViewerScreen(
+            SelectFileOptionScreen(
                 fileUri = navData.fileUri,
                 fileName = navData.fileName,
                 backgroundColor = navData.backgroundColor,

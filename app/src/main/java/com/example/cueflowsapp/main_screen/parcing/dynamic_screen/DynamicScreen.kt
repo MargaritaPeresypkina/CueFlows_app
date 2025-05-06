@@ -38,11 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
-import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.FormatMapper.toDocumentFormat
-import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.NavRoutes
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.FormatMapper.toDocumentFormat
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.NavRoutes
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.components.ButtonsBlock
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.ActionButton
 import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicScreenObject
+import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.FileFormats
 import com.example.cueflowsapp.ui.theme.TextDocsGray
 import com.example.cueflowsapp.ui.theme.WhiteReturnButton
 

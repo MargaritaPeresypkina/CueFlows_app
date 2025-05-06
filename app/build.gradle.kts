@@ -38,6 +38,15 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    packagingOptions {
+        resources.excludes += setOf(
+            "META-INF/DEPENDENCIES",
+            "META-INF/LICENSE",
+            "META-INF/LICENSE.txt",
+            "META-INF/NOTICE",
+            "META-INF/NOTICE.txt"
+        )
+    }
     buildFeatures {
         compose = true
         //viewBinding = true
@@ -47,6 +56,16 @@ android {
 
 
 dependencies {
+    implementation(libs.juniversalchardet)
+    implementation(libs.commons.logging)
+    implementation(libs.pdfbox.android)
+    implementation(libs.poi.ooxml)
+    implementation(libs.pdfbox)
+    implementation(libs.fontbox)
+
+    implementation(libs.tika.core)
+    implementation(libs.tika.parsers)
+
     implementation(libs.navigation.testing)
     implementation(libs.navigation.ui)
     implementation(libs.navigation.fragment)

@@ -3,7 +3,7 @@ package com.example.cueflowsapp.main_screen.parcing.dynamic_screen
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.cueflowsapp.main_screen.parcing.dynamic_destinations.DocumentFormat
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
 
 class FileUploadViewModel: ViewModel() {
     private val _uploadState = MutableLiveData(UploadState())

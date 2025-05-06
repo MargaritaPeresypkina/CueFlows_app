@@ -1,9 +1,9 @@
-package com.example.cueflowsapp.main_screen.parcing.dynamic_screen
+package com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data
 
 object FileFormats {
     private val formatToMime = mapOf(
         "txt" to "text/plain",
-        "rtf" to "application/rtf",
+        //"rtf" to "text/rtf", //"application/rtf",
         "pdf" to "application/pdf",
         "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 

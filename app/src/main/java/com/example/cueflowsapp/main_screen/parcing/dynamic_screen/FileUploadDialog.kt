@@ -111,13 +111,11 @@ fun FileUploadDialog(
 
                     Spacer(Modifier.height(15.dp))
 
-                    // Показываем прогресс-бар при загрузке
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(50.dp))
                         Spacer(Modifier.height(15.dp))
                         Text("Uploading...", color = DarkGrey1)
                     }
-                    // Показываем сообщение об ошибке, если есть
                     else if (errorMessage != null) {
                         Text(
                             text = errorMessage,
@@ -125,7 +123,6 @@ fun FileUploadDialog(
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
                     }
-                    // Основное содержимое в зависимости от состояния
                     else when {
                         isFileUploaded -> {
                             UploadedStateContent(

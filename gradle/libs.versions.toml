@@ -28,7 +28,28 @@ runtimeCompVersion = "2.8.7"
 lifecycleViewVersion = "2.8.7"
 lifecycleLivedataVersion = "2.8.7"
 lifecycleLivedataKtxVersion = "2.8.7"
+poiOoxmlVersion = "5.2.3"
+pdfboxVersion = "2.0.29"
+commonsLoggingVersion = "1.2"
+tomRoushVersion = "2.0.27.0"
+fontboxVersion = "2.0.29"
+#fontboxVersion = "3.0.0"
+juniversalchardetVersion = "2.4.0"
+#rtftohtml = "2.4.0"
+#pdfboxVersion = "3.0.0"
+tikacoreVersion = "2.4.1"
+
 [libraries]
+tika-core = { group = "org.apache.tika", name = "tika-core", version.ref = "tikacoreVersion" }
+tika-parsers = { group = "org.apache.tika", name = "tika-parsers", version.ref = "tikacoreVersion" }
+
+juniversalchardet = { group = "com.github.albfernandez", name = "juniversalchardet", version.ref = "juniversalchardetVersion" }
+poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poiOoxmlVersion" }
+pdfbox = { group = "org.apache.pdfbox", name = "pdfbox", version.ref = "pdfboxVersion" }
+commons-logging = { group = "commons-logging", name = "commons-logging", version.ref = "commonsLoggingVersion" }
+pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref = "tomRoushVersion" }
+fontbox = { group = "org.apache.pdfbox", name = "fontbox", version.ref = "fontboxVersion" }
+
 runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedataVersion" }
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "runtimeCompVersion" }
 lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewVersion" }
