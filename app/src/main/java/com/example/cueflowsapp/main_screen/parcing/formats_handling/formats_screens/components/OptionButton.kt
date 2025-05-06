@@ -35,7 +35,7 @@ fun OptionButton(
             .background(color = Color(color))
     ){
         Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
             Image(
@@ -46,7 +46,7 @@ fun OptionButton(
             Spacer(Modifier.width(5.dp))
             Text(
                 text,
-                fontSize = 11.sp,
+                fontSize = 13.sp,
                 fontFamily = FontFamily(Font(R.font.inter_medium)),
                 color = Color(textColor)
             )

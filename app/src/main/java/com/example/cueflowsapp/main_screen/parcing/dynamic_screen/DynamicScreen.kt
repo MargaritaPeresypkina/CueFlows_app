@@ -74,7 +74,6 @@ fun DynamicScreen(
             contract = ActivityResultContracts.GetContent(),
             onResult = { uri ->
                 if (uri == null) {
-                    // Пользователь отменил выбор файла
                     errorMessage = "File selection cancelled"
                     return@rememberLauncherForActivityResult
                 }
@@ -84,7 +83,10 @@ fun DynamicScreen(
                 try {
                     val fileNameFromUri = getFileNameFromUri(context, uri)
                     val fileExtension = fileNameFromUri.substringAfterLast(".", "").lowercase()
+                    Log.d("fileNameFromUri", fileNameFromUri)
+                    Log.d("fileExtension", fileExtension)
                     val formatType = fileExtension.toDocumentFormat()
+                    Log.d("formatType", "$formatType")
 
                     if (currentButton?.destination?.lowercase() == fileExtension && formatType != null) {
                         viewModel.updateUploadState(

@@ -1,4 +1,4 @@
-package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs
+package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions
 
 import android.content.Context
 import android.net.Uri

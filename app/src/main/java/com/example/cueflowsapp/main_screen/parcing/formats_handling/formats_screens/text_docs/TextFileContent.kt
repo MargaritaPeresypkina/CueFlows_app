@@ -1,9 +1,10 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs
 
-import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,32 +23,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cueflowsapp.R
-import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.OptionButtonInfo
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.optionButtons
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.components.OptionButton
-import com.tom_roush.pdfbox.pdmodel.PDDocument
-import com.tom_roush.pdfbox.text.PDFTextStripper
-import org.apache.poi.xwpf.usermodel.XWPFDocument
-import java.nio.charset.Charset
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readDocxFile
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readPdfFile
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readTxtFile
 
 @Composable
-fun TextFileContent(uri: Uri) {
-
+fun TextFileContent(uri: Uri, format: String) {
     val context = LocalContext.current
     val text = try {
-        readTxtFile(uri, context)
+        when(format) {
+            "txt" -> readTxtFile(uri, context)
+            "docx" -> readDocxFile(uri, context)
+            "pdf" -> readPdfFile(uri, context)
+            else -> "error in text format reading"
+        }
     } catch (e: Exception) {
-        "Error on emulator: ${e.message}"
+        "Error is: ${e.message}"
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        val optionButtons = listOf(
-            OptionButtonInfo(image = R.drawable.original_icon, text = "Original", color = 0xFF205984.toInt(), textColor = 0xFFFFFFFF.toInt()),
-            OptionButtonInfo(image = R.drawable.summary_icon, text = "Summary", color = 0xFF205984.toInt(), textColor = 0xFFFFFFFF.toInt()),
-            OptionButtonInfo(image = R.drawable.keyterms_icon, text = "Key terms", color = 0xFF205984.toInt(), textColor = 0xFFFFFFFF.toInt())
-        )
         LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(start = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(7.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.Transparent),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            contentPadding = PaddingValues(start = 10.dp)
         ) {
             items(optionButtons) { item ->
                 OptionButton(
@@ -58,7 +60,10 @@ fun TextFileContent(uri: Uri) {
                 )
             }
         }
-        Column{
+
+        Column(
+            modifier = Modifier.padding(horizontal = 35.dp)
+        ){
             Spacer(Modifier.height(30.dp))
             Text(
                 "Summary",

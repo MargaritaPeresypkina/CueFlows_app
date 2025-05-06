@@ -12,5 +12,5 @@ fun getFileNameFromUri(
         val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         cursor.moveToFirst()
         cursor.getString(nameIndex)
-    } ?: "documentNothing.txt"
+    } ?: "document"
 }

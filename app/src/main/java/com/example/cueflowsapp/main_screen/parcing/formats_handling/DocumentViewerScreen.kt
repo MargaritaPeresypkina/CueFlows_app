@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
@@ -23,13 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
-import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.DocxFileContent
-import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.PdfFileContent
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.TextFileContent
 
 
@@ -52,7 +52,7 @@ fun SelectFileOptionScreen(
                 .background(Color(backgroundColor))
         ){
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 50.dp, start = 35.dp, end = 35.dp, bottom = 35.dp ),
+                modifier = Modifier.fillMaxWidth().padding(top = 50.dp, start = 35.dp, end = 35.dp, bottom = 25.dp ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ){
@@ -62,22 +62,26 @@ fun SelectFileOptionScreen(
                     Image(
                         painter = painterResource(id = R.drawable.arrow_white),
                         contentDescription = "arrow_white",
+                        modifier = Modifier.size(18.dp)
                         )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(
                     text = fileName,
-                    fontFamily = FontFamily(Font(R.font.inter_medium)),
-                    fontSize = 22.sp,
-                    color = Color.White
+                    fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+
                 )
             }
         }
         Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)){
             when (formatType) {
-                DocumentFormat.TXT -> TextFileContent(fileUri.toUri())
-                DocumentFormat.DOCX -> DocxFileContent(fileUri.toUri())
-                DocumentFormat.PDF -> PdfFileContent(fileUri.toUri())
+                DocumentFormat.TXT -> TextFileContent(fileUri.toUri(), "txt")
+                DocumentFormat.DOCX -> TextFileContent(fileUri.toUri(), "docx")
+                DocumentFormat.PDF -> TextFileContent(fileUri.toUri(), "pdf")
             }
         }
     }

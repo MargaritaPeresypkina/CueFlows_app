@@ -33,10 +33,7 @@ pdfboxVersion = "2.0.29"
 commonsLoggingVersion = "1.2"
 tomRoushVersion = "2.0.27.0"
 fontboxVersion = "2.0.29"
-#fontboxVersion = "3.0.0"
 juniversalchardetVersion = "2.4.0"
-#rtftohtml = "2.4.0"
-#pdfboxVersion = "3.0.0"
 tikacoreVersion = "2.4.1"
 
 [libraries]
