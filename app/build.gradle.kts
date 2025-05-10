@@ -38,14 +38,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    packagingOptions {
-        resources.excludes += setOf(
-            "META-INF/DEPENDENCIES",
-            "META-INF/LICENSE",
-            "META-INF/LICENSE.txt",
-            "META-INF/NOTICE",
-            "META-INF/NOTICE.txt"
-        )
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/DEPENDENCIES"
+            )
+        }
     }
     buildFeatures {
         compose = true
@@ -56,7 +54,6 @@ android {
 
 
 dependencies {
-    implementation(libs.juniversalchardet)
     implementation(libs.commons.logging)
     implementation(libs.pdfbox.android)
     implementation(libs.poi.ooxml)
@@ -65,12 +62,6 @@ dependencies {
 
     implementation(libs.tika.core)
     implementation(libs.tika.parsers)
-
-    implementation(libs.navigation.testing)
-    implementation(libs.navigation.ui)
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.dynamic.features.fragment)
-
     implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)

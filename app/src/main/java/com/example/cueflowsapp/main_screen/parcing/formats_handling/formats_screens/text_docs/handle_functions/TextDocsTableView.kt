@@ -1,15 +1,15 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions
 
+import android.R.attr.thickness
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -60,7 +60,7 @@ fun TextDocsTableView(table: TextDocsContent.Table) {
                     }
                 }
                 if (rowIndex < table.rows.size - 1) {
-                    Divider(color = Color(0xFFF5F5F5), thickness = 1.dp)
+                    HorizontalDivider(thickness = 1.dp, color = Color(0xFFF5F5F5))
                 }
             }
         }
