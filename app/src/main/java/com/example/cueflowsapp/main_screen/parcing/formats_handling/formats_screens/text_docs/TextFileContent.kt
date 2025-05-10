@@ -20,7 +20,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -36,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cueflowsapp.R
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.TextDocsViewMode
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.TextFileViewModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.optionButtons
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.components.OptionButton
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.data.TextDocsContent
@@ -46,17 +51,21 @@ import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_scre
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readTxtFile
 
 @Composable
-fun TextFileContent(uri: Uri, format: String) {
+fun TextFileContent(
+    uri: Uri,
+    format: String,
+    viewModel: TextFileViewModel
+) {
     val context = LocalContext.current
-    val content = remember {
+    val content = remember(uri){
         when(format) {
             "txt" -> listOf(TextDocsContent.Paragraph(readTxtFile(uri, context)))
             "docx" -> parseTextDocsContent(uri, context)
             "pdf" -> listOf(TextDocsContent.Paragraph(readPdfFile(uri, context)))
             else -> listOf(TextDocsContent.Paragraph("error in text format reading"))
         }
-    }
-
+    }.also { viewModel.processContent(it) }
+    var currentViewMode by remember { mutableStateOf<TextDocsViewMode>(TextDocsViewMode.Original) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         LazyRow(
@@ -67,56 +76,124 @@ fun TextFileContent(uri: Uri, format: String) {
             contentPadding = PaddingValues(start = 10.dp)
         ) {
             items(optionButtons) { item ->
+                val currViewMode  =  when(item.text){
+                    "Original" -> TextDocsViewMode.Original
+                    "Summary" -> TextDocsViewMode.Summary
+                    "Key Terms" -> TextDocsViewMode.KeyTerms
+                    else -> TextDocsViewMode.Original
+                }
                 OptionButton(
                     image = item.image,
                     text = item.text,
                     color = item.color,
                     textColor = item.textColor
-                )
+                ){
+                    currentViewMode = currViewMode
+                }
             }
         }
         Spacer(Modifier.height(30.dp))
-        Text(
-            "Original",
-            fontFamily = FontFamily(Font(R.font.inter_semibold)),
-            color = Color(0xFF343434),
-            fontSize = 18.sp,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.padding(start = 18.dp)
-        )
-        Spacer(Modifier.height(13.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 18.dp)
-        ) {
-            itemsIndexed(content) { index, item ->
-                when (item) {
-                    is TextDocsContent.Image -> {
-                        FullWidthImage(image = item)
-                        if (index < content.lastIndex && content[index + 1] !is TextDocsContent.Image) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+        when (currentViewMode) {
+            is TextDocsViewMode.Original -> OriginalContentView(content)
+            is TextDocsViewMode.Summary -> SummaryView(viewModel.summary)
+            is TextDocsViewMode.KeyTerms -> KeyTermsView(viewModel.keyTerms)
+        }
+    }
+}
+
+@Composable
+private fun OriginalContentView(content: List<TextDocsContent>) {
+    Text(
+        "Original",
+        fontFamily = FontFamily(Font(R.font.inter_semibold)),
+        color = Color(0xFF343434),
+        fontSize = 18.sp,
+        textAlign = TextAlign.Start,
+        modifier = Modifier.padding(start = 18.dp)
+    )
+    Spacer(Modifier.height(13.dp))
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp)
+    ) {
+        itemsIndexed(content) { index, item ->
+            when (item) {
+                is TextDocsContent.Image -> {
+                    FullWidthImage(image = item)
+                    if (index < content.lastIndex && content[index + 1] !is TextDocsContent.Image) {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    is TextDocsContent.Paragraph -> {
-                        Text(
-                            text = item.text,
-                            modifier = Modifier.padding(vertical = 4.dp),
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
-                        )
-                        if (index < content.lastIndex) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                }
+                is TextDocsContent.Paragraph -> {
+                    Text(
+                        text = item.text,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
+                    )
+                    if (index < content.lastIndex) {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    is TextDocsContent.Table -> {
-                        TextDocsTableView(table = item)
-                        if (index < content.lastIndex) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
+                }
+                is TextDocsContent.Table -> {
+                    TextDocsTableView(table = item)
+                    if (index < content.lastIndex) {
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SummaryView(summary: String) {
+    Text(
+        "Summary",
+        fontFamily = FontFamily(Font(R.font.inter_semibold)),
+        color = Color(0xFF343434),
+        fontSize = 18.sp,
+        textAlign = TextAlign.Start,
+        modifier = Modifier.padding(start = 18.dp, bottom = 13.dp))
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp)
+    ) {
+        item {
+            Text(
+                text = summary,
+                modifier = Modifier.padding(vertical = 4.dp),
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
+            )
+        }
+    }
+}
+
+@Composable
+private fun KeyTermsView(keyTerms: String) {
+    Text(
+        "Key Terms",
+        fontFamily = FontFamily(Font(R.font.inter_semibold)),
+        color = Color(0xFF343434),
+        fontSize = 18.sp,
+        textAlign = TextAlign.Start,
+        modifier = Modifier.padding(start = 18.dp, bottom = 13.dp))
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp)
+    ) {
+        item {
+            Text(
+                text = keyTerms,
+                modifier = Modifier.padding(vertical = 4.dp),
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
+            )
         }
     }
 }

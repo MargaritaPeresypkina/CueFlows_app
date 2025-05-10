@@ -41,7 +41,12 @@ android {
     packaging {
         resources {
             excludes += setOf(
-                "META-INF/DEPENDENCIES"
+                "META-INF/DEPENDENCIES",
+                "kotlin/**",
+                "META-INF/*.md",
+                "DebugProbesKt.bin",
+                "org/jetbrains/annotations/**",
+                "org/intellij/lang/annotations/**"
             )
         }
     }
@@ -67,6 +72,10 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth.ktx)
+    //implementation(libs.kotlinx.coroutines.android)
+    //implementation(libs.kotlinx.coroutines.core)
+    //implementation(libs.lifecycle.viewmodel.ktx)
+    //implementation(libs.lifecycle.runtime.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -94,7 +103,13 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
+    implementation(files("libs\\Text2Summary-0.0.1-all.jar"))
+//    implementation(fileTree("libs") {
+//        include("Text2Summary-0.0.1-all.jar")
+//        exclude("org/jetbrains/kotlinx/**")
+//        exclude("org/jetbrains/annotations/**")
+//        exclude("org/intellij/lang/annotations/**")
+//    })
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)

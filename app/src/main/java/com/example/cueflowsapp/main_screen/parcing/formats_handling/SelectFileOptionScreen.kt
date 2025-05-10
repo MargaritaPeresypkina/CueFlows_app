@@ -28,8 +28,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.TextFileViewModel
+//import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.TextFileViewModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.TextFileContent
 
 
@@ -39,7 +42,8 @@ fun SelectFileOptionScreen(
     fileName: String,
     backgroundColor: Int,
     formatType: DocumentFormat,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: TextFileViewModel = viewModel()
 ) {
     Column(
         modifier = Modifier
@@ -79,9 +83,9 @@ fun SelectFileOptionScreen(
         }
         Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)){
             when (formatType) {
-                DocumentFormat.TXT -> TextFileContent(fileUri.toUri(), "txt")
-                DocumentFormat.DOCX -> TextFileContent(fileUri.toUri(), "docx")
-                DocumentFormat.PDF -> TextFileContent(fileUri.toUri(), "pdf")
+                DocumentFormat.TXT -> TextFileContent(fileUri.toUri(), "txt", viewModel)
+                DocumentFormat.DOCX -> TextFileContent(fileUri.toUri(), "docx", viewModel)
+                DocumentFormat.PDF -> TextFileContent(fileUri.toUri(), "pdf", viewModel)
             }
         }
     }
