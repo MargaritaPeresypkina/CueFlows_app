@@ -52,7 +52,15 @@ fun TextFileContent(uri: Uri, format: String) {
         when(format) {
             "txt" -> listOf(TextDocsContent.Paragraph(readTxtFile(uri, context)))
             "docx" -> parseTextDocsContent(uri, context)
-            "pdf" -> listOf(TextDocsContent.Paragraph(readPdfFile(uri, context)))
+            "pdf" -> {
+                val pdfContent = readPdfFile(uri, context)
+                val items = mutableListOf<TextDocsContent>()
+                items.add(TextDocsContent.Paragraph(pdfContent.text))
+                pdfContent.images.forEach { image ->
+                    items.add(TextDocsContent.Image(image.data, image.width, image.height))
+                }
+                items
+            }
             else -> listOf(TextDocsContent.Paragraph("error in text format reading"))
         }
     }

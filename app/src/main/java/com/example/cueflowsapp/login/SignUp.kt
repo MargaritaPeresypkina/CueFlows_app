@@ -38,11 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cueflowsapp.R
 import com.example.cueflowsapp.login.data.GetStartedDataObject
+import com.example.cueflowsapp.login.data.SignInObject
+import com.example.cueflowsapp.login.data.SignUpObject
+import com.example.cueflowsapp.ui.theme.Blue1
 import com.example.cueflowsapp.ui.theme.Facebook2
 import com.example.cueflowsapp.ui.theme.Facebook21
 import com.example.cueflowsapp.ui.theme.FacebookDescription2
 import com.example.cueflowsapp.ui.theme.FailureContent
 import com.example.cueflowsapp.ui.theme.GoogleDescription2
+import com.example.cueflowsapp.ui.theme.Grey1
 import com.example.cueflowsapp.ui.theme.Grey2
 import com.example.cueflowsapp.ui.theme.Grey21
 import com.example.cueflowsapp.ui.theme.LightBlack2
@@ -54,7 +58,8 @@ import com.google.firebase.ktx.Firebase
 @Composable
 fun SignUp(
     onNavigateToPreviousScreen:() -> Unit,
-    onNavigateToGetStarted: (GetStartedDataObject) -> Unit
+    onNavigateToGetStarted: (GetStartedDataObject) -> Unit,
+    onNavigateToSignIn: (SignInObject) -> Unit
 ) {
     val auth = remember {Firebase.auth}
 
@@ -268,6 +273,26 @@ fun SignUp(
                 letterSpacing = 0.5.sp,
                 color = GoogleDescription2
             )
+            Spacer(Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "HAVE AN ACCOUNT?",
+                    fontFamily = FontFamily(Font(R.font.inter_medium)),
+                    color = Grey1,
+                    modifier = Modifier.padding(end = 5.dp),
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "SIGN IN",
+                    fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                    color = Blue1,
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable {
+                        onNavigateToSignIn(SignInObject)
+                    }
+                )
+            }
         }
     }
 }

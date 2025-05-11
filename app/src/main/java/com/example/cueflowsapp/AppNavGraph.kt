@@ -2,6 +2,7 @@ package com.example.cueflowsapp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,7 @@ import com.example.cueflowsapp.main_screen.AccountScreen
 import com.example.cueflowsapp.main_screen.GetStarted
 import com.example.cueflowsapp.main_screen.MainScreen
 import com.example.cueflowsapp.main_screen.data.AccountScreenObject
+import com.example.cueflowsapp.main_screen.data.DocumentListViewModel
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.NavRoutes
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.SelectFileOptionScreen
@@ -30,6 +32,7 @@ import com.example.cueflowsapp.splash_screen.SplashScreenObject
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
+    val viewModel: DocumentListViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -38,6 +41,7 @@ fun AppNavGraph(navController: NavHostController) {
         composable<SplashScreenObject> {
             SplashScreen()
         }
+
         composable<StartScreenObject>{
             FirstScreen(
                 onNavigateToSignIn = { navController.navigate(route = SignInObject) },
@@ -57,8 +61,10 @@ fun AppNavGraph(navController: NavHostController) {
             SignUp(
                 onNavigateToPreviousScreen = { navController.popBackStack()},
                 onNavigateToGetStarted = { navData ->
-                    navController.navigate(route = navData)}
+                    navController.navigate(route = navData)},
+                onNavigateToSignIn = {navController.navigate(route = SignInObject)}
             )
+
         }
         composable<GetStartedDataObject> { navEntry ->
             val navData = navEntry.toRoute<GetStartedDataObject>()
@@ -76,9 +82,6 @@ fun AppNavGraph(navController: NavHostController) {
         composable<MainScreenDataObject> { navEntry ->
             val mainScreen: MainScreenDataObject  = navEntry.toRoute()
             MainScreen(navController)
-        }
-        composable<AccountScreenObject> {
-            AccountScreen()
         }
 
         composable<DynamicScreenDataObject> { navEntry ->
@@ -104,7 +107,11 @@ fun AppNavGraph(navController: NavHostController) {
                 fileName = navData.fileName,
                 backgroundColor = navData.backgroundColor,
                 formatType = navData.formatType,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onSaveDocument = { document ->
+                    viewModel.saveDocument(document)
+                    navController.popBackStack()
+                }
             )
         }
     }

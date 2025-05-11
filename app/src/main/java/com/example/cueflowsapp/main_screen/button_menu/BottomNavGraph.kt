@@ -27,10 +27,10 @@ fun BottomNavGraph(
             AIScreen()
         }
         composable(Screen.List.route) {
-            ListScreen()
+            ListScreen(rootNavController)
         }
         composable(Screen.Account.route) {
-            AccountScreen()
+            AccountScreen(rootNavController)
         }
     }
 }

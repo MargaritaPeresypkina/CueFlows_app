@@ -54,19 +54,18 @@ android {
 
 
 dependencies {
-    implementation(libs.commons.logging)
+
     implementation(libs.pdfbox.android)
     implementation(libs.poi.ooxml)
     implementation(libs.pdfbox)
-    implementation(libs.fontbox)
 
-    implementation(libs.tika.core)
-    implementation(libs.tika.parsers)
     implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.coil.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -93,7 +92,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
 
     testImplementation(libs.junit)
 
