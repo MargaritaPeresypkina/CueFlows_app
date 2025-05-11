@@ -32,8 +32,21 @@ pdfboxVersion = "2.0.29"
 tomRoushVersion = "2.0.27.0"
 firebaseStorageKtxVersion = "21.0.1"
 coilComposeVersion = "2.4.0"
+corutinesVersion = "1.7.3"
+lifecycleVersion = "2.6.2"
+retrofitVersion = "2.9.0"
+loggingInterceptorVersion = "4.9.3"
 
 [libraries]
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptorVersion" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitVersion" }
+
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "corutinesVersion" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "corutinesVersion" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleVersion" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilComposeVersion" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtxVersion" }
 

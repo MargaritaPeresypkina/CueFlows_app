@@ -1,7 +1,9 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling
 
+import GeminiViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.DocumentModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
@@ -60,6 +64,17 @@ fun SelectFileOptionScreen(
     val context = LocalContext.current
     var showSaveDialog by remember { mutableStateOf(false) }
     var documentContent by remember { mutableStateOf("") }
+    var geminiResponse by remember { mutableStateOf("") }
+    var showGeminiResponse by remember { mutableStateOf(false) }
+
+    val viewModel: GeminiViewModel = viewModel()
+
+    LaunchedEffect(viewModel.responseText.value) {
+        if (viewModel.responseText.value.isNotEmpty()) {
+            geminiResponse = viewModel.responseText.value
+            showGeminiResponse = true
+        }
+    }
 
     LaunchedEffect(fileUri) {
         documentContent = when(formatType) {
@@ -90,7 +105,7 @@ fun SelectFileOptionScreen(
                 .background(Color(backgroundColor))
         ){
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 50.dp, start = 35.dp, end = 35.dp, bottom = 25.dp ),
+                modifier = Modifier.fillMaxWidth().padding(top = 50.dp, start = 15.dp, end = 15.dp, bottom = 25.dp ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ){
@@ -104,14 +119,6 @@ fun SelectFileOptionScreen(
                         )
                 }
                 Spacer(Modifier.width(8.dp))
-                Button(
-                    onClick = { showSaveDialog = true },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text("Save Document")
-                }
                 Text(
                     text = fileName,
                     fontFamily = FontFamily(Font(R.font.inter_semibold)),
@@ -120,14 +127,47 @@ fun SelectFileOptionScreen(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-
+                Spacer(Modifier.width(15.dp))
+                Box(modifier = Modifier
+                    .height(30.dp).width(70.dp)
+                    .clickable{showSaveDialog = true}
+                    .clip(RoundedCornerShape(15.dp))
+                    .background(Color.White)
+                    ,
+                    contentAlignment = Alignment.Center,
+                    ){
+                    Text(
+                        "Save",
+                        color = Color(backgroundColor),
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily(Font(R.font.inter_regular))
+                    )
+                }
             }
         }
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)){
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)) {
             when (formatType) {
-                DocumentFormat.TXT -> TextFileContent(fileUri.toUri(), "txt")
-                DocumentFormat.DOCX -> TextFileContent(fileUri.toUri(), "docx")
-                DocumentFormat.PDF -> TextFileContent(fileUri.toUri(), "pdf")
+                DocumentFormat.TXT -> TextFileContent(
+                    uri = fileUri.toUri(),
+                    format = "txt",
+                    onGeminiResponse = { response ->
+                        viewModel.generateText("YOUR_API_KEY", response)
+                    }
+                )
+                DocumentFormat.DOCX -> TextFileContent(
+                    uri = fileUri.toUri(),
+                    format = "docx",
+                    onGeminiResponse = { response ->
+                        viewModel.generateText("YOUR_API_KEY", response)
+                    }
+                )
+                DocumentFormat.PDF -> TextFileContent(
+                    uri = fileUri.toUri(),
+                    format = "pdf",
+                    onGeminiResponse = { response ->
+                        viewModel.generateText("YOUR_API_KEY", response)
+                    }
+                )
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -160,6 +200,19 @@ fun SelectFileOptionScreen(
                     onClick = { showSaveDialog = false }
                 ) {
                     Text("Cancel")
+                }
+            }
+        )
+    }
+    // Gemini Response Dialog
+    if (showGeminiResponse) {
+        AlertDialog(
+            onDismissRequest = { showGeminiResponse = false },
+            title = { Text("Gemini AI Response") },
+            text = { Text(geminiResponse) },
+            confirmButton = {
+                Button(onClick = { showGeminiResponse = false }) {
+                    Text("OK")
                 }
             }
         )
