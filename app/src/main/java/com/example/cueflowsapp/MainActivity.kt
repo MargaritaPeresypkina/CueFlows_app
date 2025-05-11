@@ -23,8 +23,6 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val auth = Firebase.auth
             var isLoading by remember { mutableStateOf(true) }
-
-            // Показываем SplashScreen пока проверяем авторизацию
             if (isLoading) {
                 SplashScreen()
             }

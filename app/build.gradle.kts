@@ -41,7 +41,12 @@ android {
     packaging {
         resources {
             excludes += setOf(
-                "META-INF/DEPENDENCIES"
+                "META-INF/DEPENDENCIES",
+                "kotlin/**",
+                "META-INF/*.md",
+                "DebugProbesKt.bin",
+                "org/jetbrains/annotations/**",
+                "org/intellij/lang/annotations/**"
             )
         }
     }
