@@ -18,12 +18,18 @@ import com.google.firebase.ktx.Firebase
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.DocumentListViewModel
 import com.example.cueflowsapp.main_screen.data.DocumentModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.NavRoutes
@@ -37,25 +43,32 @@ fun ListScreen(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
-            .padding(20.dp)
     ) {
-        Text(
-            "Saved Documents",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
+        Box(
+            modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
+                .background(Color(0xFF7C3CB6))
+        ){
+            Text(
+                "My list",
+                fontSize = 24.sp,
+                color = Color.White,
+                fontFamily = FontFamily(Font(R.font.inter_bold)),
+                modifier = Modifier.padding(horizontal = 40.dp).padding(top = 40.dp, bottom = 20.dp)
+            )
+        }
+        Spacer(Modifier.height(15.dp))
         if (documents.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                contentAlignment = Alignment.Center,
+
             ) {
                 Text("No saved documents yet")
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 items(documents) { document ->
                     DocumentItem(
@@ -81,18 +94,23 @@ fun ListScreen(navController: NavHostController) {
 fun DocumentItem(document: DocumentModel, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp)),
+        colors = CardDefaults.cardColors(Color(0xFFDBDEFF))
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 document.title,
-                style = MaterialTheme.typography.titleMedium
+                fontSize = 20.sp,
+                color = Color.Black,
+                fontFamily = FontFamily(Font(R.font.inter_semibold)),
             )
             Text(
                 "Format: ${document.format.name}",
-                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                color = Color.Black,
+                fontFamily = FontFamily(Font(R.font.inter_regular)),
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
