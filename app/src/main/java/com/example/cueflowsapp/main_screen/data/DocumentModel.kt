@@ -3,24 +3,25 @@ package com.example.cueflowsapp.main_screen.data
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
-import kotlinx.serialization.Serializable
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.snapshots
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-
+import kotlinx.serialization.Serializable
+import android.util.Base64
+import com.google.firebase.firestore.snapshots
 
 @Serializable
 @Immutable
@@ -28,19 +29,46 @@ data class DocumentModel(
     val id: String = "",
     val title: String = "",
     val content: String = "",
-    val format: DocumentFormat = DocumentFormat.TXT, // Укажите значение по умолчанию
+    val images: List<ImageData> = emptyList(),
+    val tables: List<List<List<String>>> = emptyList(),
+    val format: DocumentFormat = DocumentFormat.TXT,
     val fileUri: String = "",
     val backgroundColor: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 ) {
-    // Добавьте пустой конструктор
-    constructor() : this("", "", "", DocumentFormat.TXT, "", 0, 0L)
+    constructor() : this("", "", "", emptyList(), emptyList(), DocumentFormat.TXT, "", 0, 0L)
+
+    @Serializable
+    data class ImageData(
+        val data: String, // Base64 encoded string for Firestore compatibility
+        val width: Int,
+        val height: Int
+    ) {
+        constructor(byteArray: ByteArray, width: Int, height: Int) : this(
+            Base64.encodeToString(byteArray, Base64.DEFAULT),
+            width,
+            height
+        )
+
+        fun toByteArray(): ByteArray = Base64.decode(data, Base64.DEFAULT)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ImageData) return false
+            return data == other.data && width == other.width && height == other.height
+        }
+
+        override fun hashCode(): Int {
+            var result = data.hashCode()
+            result = 31 * result + width
+            result = 31 * result + height
+            return result
+        }
+    }
 }
 
-
-
 class DocumentRepository {
-    private val db = Firebase.firestore
+    private val db: FirebaseFirestore = Firebase.firestore
     private val auth = Firebase.auth
 
     private fun currentUserId(): String {
@@ -54,11 +82,11 @@ class DocumentRepository {
                 .document(userId)
                 .collection("documents")
                 .document()
-
             val docWithId = document.copy(id = docRef.id)
             docRef.set(docWithId).await()
             return docRef.id
         } catch (e: Exception) {
+            Log.e("DocumentRepository", "Failed to save document", e)
             throw RepositoryException("Failed to save document", e)
         }
     }
@@ -76,26 +104,33 @@ class DocumentRepository {
                         try {
                             doc.toObject(DocumentModel::class.java)
                         } catch (e: Exception) {
-                            null // Пропускаем некорректные документы
+                            Log.e("DocumentRepository", "Error parsing document ${doc.id}", e)
+                            null
                         }
                     }
                 }
+                .catch { e ->
+                    Log.e("DocumentRepository", "Error fetching documents", e)
+                    emit(emptyList())
+                }
         } catch (e: AuthRequiredException) {
-            flow { emit(emptyList()) } // Возвращаем пустой список если не авторизованы
+            flow { emit(emptyList()) }
         }
     }
 
     suspend fun getDocumentById(id: String): DocumentModel? {
         return try {
             val userId = currentUserId()
-            db.collection("users")
+            val doc = db.collection("users")
                 .document(userId)
                 .collection("documents")
                 .document(id)
                 .get()
                 .await()
                 .toObject(DocumentModel::class.java)
+            doc
         } catch (e: Exception) {
+            Log.e("DocumentRepository", "Error fetching document $id", e)
             null
         }
     }
@@ -130,14 +165,20 @@ class DocumentListViewModel(
         }
     }
 
-    fun saveDocument(document: DocumentModel) {
+    fun saveDocument(document: DocumentModel): String {
+        var documentId = ""
         viewModelScope.launch {
             try {
-                repository.saveDocument(document)
+                documentId = repository.saveDocument(document)
             } catch (e: Exception) {
                 Log.e("DocumentListVM", "Error saving document", e)
             }
         }
+        return documentId
+    }
+
+    suspend fun getDocumentById(id: String): DocumentModel? {
+        return repository.getDocumentById(id)
     }
 
     fun clear() {

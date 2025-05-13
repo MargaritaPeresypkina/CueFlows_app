@@ -8,23 +8,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,7 +46,7 @@ fun DynamicScreen(
     val screenWidthDp = configuration.screenWidthDp.dp
     val horizontalSpacing = 37.dp
     val spaceBetweenButtons = 9.dp
-    val buttonWidth = (screenWidthDp - (horizontalSpacing * 2 + spaceBetweenButtons))/2
+    val buttonWidth = (screenWidthDp - (horizontalSpacing * 2 + spaceBetweenButtons)) / 2
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
@@ -112,7 +100,6 @@ fun DynamicScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.White)
-
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth()
@@ -134,9 +121,7 @@ fun DynamicScreen(
                             shape = CircleShape,
                             color = Color.Black
                         )
-                        .clickable {
-                            onNavigateToPreviousScreen()
-                        },
+                        .clickable { onNavigateToPreviousScreen() },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -161,7 +146,7 @@ fun DynamicScreen(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset(y = (230).dp),
+                        .offset(y = (230).dp)
                 )
 
                 Column(
@@ -198,7 +183,7 @@ fun DynamicScreen(
                         buttons = content.firstButtons,
                         buttonWidth = buttonWidth,
                         spaceBetweenButtons = spaceBetweenButtons,
-                        onButtonClick = { button : ActionButton ->
+                        onButtonClick = { button: ActionButton ->
                             currentButton = button
                             showUploadDialog.value = true
                         }
@@ -226,12 +211,11 @@ fun DynamicScreen(
                         }
                     }
                     Spacer(Modifier.height(11.dp))
-
                     ButtonsBlock(
                         buttons = content.secondButtons,
                         buttonWidth = buttonWidth,
                         spaceBetweenButtons = spaceBetweenButtons,
-                        onButtonClick = { button : ActionButton ->
+                        onButtonClick = { button: ActionButton ->
                             currentButton = button
                             showUploadDialog.value = true
                         }
@@ -250,12 +234,12 @@ fun DynamicScreen(
                 }
             }
         }
-        if(showUploadDialog.value){
+        if (showUploadDialog.value) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Transparent)
-                    .clickable(enabled = false) {} // Блокирующий слой
+                    .clickable(enabled = false) {}
             )
             FileUploadDialog(
                 isFileUploaded = uploadState.value.isUploaded,
@@ -272,6 +256,7 @@ fun DynamicScreen(
                         if (state.isUploaded && state.fileUri != null && state.backgroundColor != null && state.formatType != null) {
                             onNavigateToDocumentViewer(
                                 NavRoutes.DocumentViewer(
+                                    documentId = null, // Will be set after saving in SelectFileOptionScreen
                                     fileUri = state.fileUri,
                                     fileName = state.fileName ?: "Document",
                                     backgroundColor = state.backgroundColor,
@@ -288,10 +273,9 @@ fun DynamicScreen(
                     showUploadDialog.value = false
                     viewModel.resetUploadState()
                     errorMessage = null
-                            },
+                },
                 isLoading = isLoading,
                 errorMessage = errorMessage
-
             )
         }
     }

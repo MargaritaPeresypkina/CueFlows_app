@@ -29,7 +29,6 @@ import com.example.cueflowsapp.main_screen.parcing.dynamic_screen.data.DynamicSc
 import com.example.cueflowsapp.splash_screen.SplashScreen
 import com.example.cueflowsapp.splash_screen.SplashScreenObject
 
-
 @Composable
 fun AppNavGraph(navController: NavHostController) {
     val viewModel: DocumentListViewModel = viewModel()
@@ -42,7 +41,7 @@ fun AppNavGraph(navController: NavHostController) {
             SplashScreen()
         }
 
-        composable<StartScreenObject>{
+        composable<StartScreenObject> {
             FirstScreen(
                 onNavigateToSignIn = { navController.navigate(route = SignInObject) },
                 onNavigateToSignUp = { navController.navigate(route = SignUpObject) }
@@ -50,37 +49,37 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable<SignInObject> {
             SignIn(
-                onNavigateToPreviousScreen = { navController.popBackStack()},
+                onNavigateToPreviousScreen = { navController.popBackStack() },
                 onNavigateToGetStarted = { navData ->
                     navController.navigate(route = navData)
                 },
-                onNavigateToSignUp = {navController.navigate(route = SignUpObject)}
+                onNavigateToSignUp = { navController.navigate(route = SignUpObject) }
             )
         }
         composable<SignUpObject> {
             SignUp(
-                onNavigateToPreviousScreen = { navController.popBackStack()},
+                onNavigateToPreviousScreen = { navController.popBackStack() },
                 onNavigateToGetStarted = { navData ->
-                    navController.navigate(route = navData)},
-                onNavigateToSignIn = {navController.navigate(route = SignInObject)}
+                    navController.navigate(route = navData) },
+                onNavigateToSignIn = { navController.navigate(route = SignInObject) }
             )
-
         }
         composable<GetStartedDataObject> { navEntry ->
             val navData = navEntry.toRoute<GetStartedDataObject>()
             GetStarted(
                 onNavigateToLibraryScreen = {
-                    navController.navigate( route =
-                        MainScreenDataObject(
+                    navController.navigate(
+                        route = MainScreenDataObject(
                             navData.uid,
                             navData.email,
                             navData.username
                         )
-                    )}
+                    )
+                }
             )
         }
         composable<MainScreenDataObject> { navEntry ->
-            val mainScreen: MainScreenDataObject  = navEntry.toRoute()
+            val mainScreen: MainScreenDataObject = navEntry.toRoute()
             MainScreen(navController)
         }
 
@@ -103,15 +102,12 @@ fun AppNavGraph(navController: NavHostController) {
         composable<NavRoutes.DocumentViewer> { navEntry ->
             val navData = navEntry.toRoute<NavRoutes.DocumentViewer>()
             SelectFileOptionScreen(
+                documentId = navData.documentId,
                 fileUri = navData.fileUri,
                 fileName = navData.fileName,
                 backgroundColor = navData.backgroundColor,
                 formatType = navData.formatType,
-                onNavigateBack = { navController.popBackStack() },
-                onSaveDocument = { document ->
-                    viewModel.saveDocument(document)
-                    navController.popBackStack()
-                }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

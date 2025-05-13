@@ -1,14 +1,13 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.data.TextDocsContent
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFParagraph
-import org.apache.poi.xwpf.usermodel.XWPFPictureData
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import java.io.ByteArrayInputStream
+import android.graphics.BitmapFactory
 
 fun parseTextDocsContent(uri: Uri, context: Context): List<TextDocsContent> {
     return try {
@@ -19,12 +18,10 @@ fun parseTextDocsContent(uri: Uri, context: Context): List<TextDocsContent> {
                 doc.bodyElements.forEach { element ->
                     when (element) {
                         is XWPFParagraph -> {
-                            // Обрабатываем текст параграфа
                             if (element.text.isNotBlank()) {
                                 content.add(TextDocsContent.Paragraph(element.text))
                             }
 
-                            // Обрабатываем изображения внутри параграфа
                             element.runs.forEach { run ->
                                 run.embeddedPictures.forEach { picture ->
                                     val options = BitmapFactory.Options().apply {

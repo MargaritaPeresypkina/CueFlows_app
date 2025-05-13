@@ -1,34 +1,11 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling
 
-import GeminiViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
+import com.example.cueflowsapp.main_screen.data.DocumentListViewModel
 import com.example.cueflowsapp.main_screen.data.DocumentModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.TextFileContent
@@ -51,72 +29,80 @@ import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_scre
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readPdfFile
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readTxtFile
 
-
 @Composable
 fun SelectFileOptionScreen(
-    fileUri: String,
+    documentId: String?,
+    fileUri: String?,
     fileName: String,
     backgroundColor: Int,
     formatType: DocumentFormat,
-    onNavigateBack: () -> Unit,
-    onSaveDocument: (DocumentModel) -> Unit
+    onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var showSaveDialog by remember { mutableStateOf(false) }
-    var documentContent by remember { mutableStateOf("") }
-    var geminiResponse by remember { mutableStateOf("") }
-    var showGeminiResponse by remember { mutableStateOf(false) }
-
-    val viewModel: GeminiViewModel = viewModel()
-
-    LaunchedEffect(viewModel.responseText.value) {
-        if (viewModel.responseText.value.isNotEmpty()) {
-            geminiResponse = viewModel.responseText.value
-            showGeminiResponse = true
-        }
-    }
+    val viewModel: DocumentListViewModel = viewModel()
+    var savedDocumentId by remember { mutableStateOf(documentId) }
+    var initialContent by remember { mutableStateOf<List<TextDocsContent>?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(fileUri) {
-        documentContent = when(formatType) {
-            DocumentFormat.TXT -> readTxtFile(fileUri.toUri(), context)
-            DocumentFormat.DOCX -> parseTextDocsContent(fileUri.toUri(), context)
-                .filterIsInstance<TextDocsContent.Paragraph>()
-                .joinToString("\n\n") { it.text }
-            DocumentFormat.PDF -> {
-                val pdfContent = readPdfFile(fileUri.toUri(), context)
-                // Combine text and image information
-                buildString {
-                    append(pdfContent.text)
-                    if (pdfContent.images.isNotEmpty()) {
-                        append("\n\n[Contains ${pdfContent.images.size} images]")
+        if (fileUri != null && savedDocumentId == null) {
+            try {
+                // Initial load: read from file and save to database
+                val content = when (formatType) {
+                    DocumentFormat.TXT -> listOf(TextDocsContent.Paragraph(readTxtFile(fileUri.toUri(), context)))
+                    DocumentFormat.DOCX -> parseTextDocsContent(fileUri.toUri(), context)
+                    DocumentFormat.PDF -> {
+                        val pdfContent = readPdfFile(fileUri.toUri(), context)
+                        buildList {
+                            add(TextDocsContent.Paragraph(pdfContent.text))
+                            pdfContent.images.forEach { img ->
+                                add(TextDocsContent.Image(img.data, img.width, img.height))
+                            }
+                        }
                     }
                 }
+                initialContent = content
+                val document = DocumentModel(
+                    title = fileName,
+                    content = content.filterIsInstance<TextDocsContent.Paragraph>().joinToString("\n\n") { it.text },
+                    images = content.filterIsInstance<TextDocsContent.Image>().map {
+                        DocumentModel.ImageData(it.data, it.width, it.height)
+                    },
+                    tables = content.filterIsInstance<TextDocsContent.Table>().map { it.rows },
+                    format = formatType,
+                    fileUri = fileUri,
+                    backgroundColor = backgroundColor
+                )
+                savedDocumentId = viewModel.saveDocument(document)
+            } catch (e: Exception) {
+                errorMessage = "Error saving document: ${e.localizedMessage}"
             }
         }
     }
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .fillMaxHeight(0.14f)
                 .clip(RoundedCornerShape(bottomStart = 25.dp, bottomEnd = 25.dp))
                 .background(Color(backgroundColor))
-        ){
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 50.dp, start = 15.dp, end = 15.dp, bottom = 25.dp ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 50.dp, start = 15.dp, end = 15.dp, bottom = 25.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
-            ){
-                IconButton(
-                    onClick = onNavigateBack
-                ) {
+            ) {
+                IconButton(onClick = onNavigateBack) {
                     Image(
                         painter = painterResource(id = R.drawable.arrow_white),
                         contentDescription = "arrow_white",
                         modifier = Modifier.size(18.dp)
-                        )
+                    )
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(
@@ -125,96 +111,26 @@ fun SelectFileOptionScreen(
                     fontSize = 20.sp,
                     color = Color.White,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.width(15.dp))
-                Box(modifier = Modifier
-                    .height(30.dp).width(70.dp)
-                    .clickable{showSaveDialog = true}
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(Color.White)
-                    ,
-                    contentAlignment = Alignment.Center,
-                    ){
-                    Text(
-                        "Save",
-                        color = Color(backgroundColor),
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily(Font(R.font.inter_regular))
-                    )
-                }
             }
         }
         Box(modifier = Modifier.fillMaxWidth().padding(top = 15.dp)) {
-            when (formatType) {
-                DocumentFormat.TXT -> TextFileContent(
-                    uri = fileUri.toUri(),
-                    format = "txt",
-                    onGeminiResponse = { response ->
-                        viewModel.generateText("YOUR_API_KEY", response)
-                    }
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
                 )
-                DocumentFormat.DOCX -> TextFileContent(
-                    uri = fileUri.toUri(),
-                    format = "docx",
-                    onGeminiResponse = { response ->
-                        viewModel.generateText("YOUR_API_KEY", response)
-                    }
-                )
-                DocumentFormat.PDF -> TextFileContent(
-                    uri = fileUri.toUri(),
-                    format = "pdf",
-                    onGeminiResponse = { response ->
-                        viewModel.generateText("YOUR_API_KEY", response)
-                    }
+            } else {
+                TextFileContent(
+                    documentId = savedDocumentId ?: "",
+                    initialContent = initialContent,
+                    format = formatType.name.lowercase(),
+                    onGeminiResponse = { /* Handle Gemini response if needed */ }
                 )
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-    }
-    if (showSaveDialog) {
-        AlertDialog(
-            onDismissRequest = { showSaveDialog = false },
-            title = { Text("Save Document") },
-            text = { Text("Do you want to save this document to your list?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onSaveDocument(
-                            DocumentModel(
-                                title = fileName,
-                                content = documentContent,
-                                format = formatType,
-                                fileUri = fileUri,
-                                backgroundColor = backgroundColor
-                            )
-                        )
-                        showSaveDialog = false
-                    }
-                ) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showSaveDialog = false }
-                ) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-    // Gemini Response Dialog
-    if (showGeminiResponse) {
-        AlertDialog(
-            onDismissRequest = { showGeminiResponse = false },
-            title = { Text("Gemini AI Response") },
-            text = { Text(geminiResponse) },
-            confirmButton = {
-                Button(onClick = { showGeminiResponse = false }) {
-                    Text("OK")
-                }
-            }
-        )
     }
 }

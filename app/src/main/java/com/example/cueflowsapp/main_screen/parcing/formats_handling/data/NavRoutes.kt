@@ -3,12 +3,10 @@ package com.example.cueflowsapp.main_screen.parcing.formats_handling.data
 import kotlinx.serialization.Serializable
 
 sealed interface NavRoutes {
-//    @Serializable
-//    data object StartScreen : NavRoutes
-
     @Serializable
     data class DocumentViewer(
-        val fileUri: String,
+        val documentId: String? = null,
+        val fileUri: String? = null,
         val fileName: String,
         val backgroundColor: Int,
         val formatType: DocumentFormat
