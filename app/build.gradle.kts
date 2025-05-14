@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.pdfbox.android)
     implementation(libs.poi.ooxml)
     implementation(libs.pdfbox)
+    implementation(libs.compressor)
 
     implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))

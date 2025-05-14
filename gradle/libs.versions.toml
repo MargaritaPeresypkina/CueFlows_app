@@ -36,8 +36,10 @@ corutinesVersion = "1.7.3"
 lifecycleVersion = "2.6.2"
 retrofitVersion = "2.9.0"
 loggingInterceptorVersion = "4.9.3"
+compressorVersion = "3.0.1"
 
 [libraries]
+compressor = { group = "id.zelory", name = "compressor", version.ref = "compressorVersion" }
 logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptorVersion" }
 
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }

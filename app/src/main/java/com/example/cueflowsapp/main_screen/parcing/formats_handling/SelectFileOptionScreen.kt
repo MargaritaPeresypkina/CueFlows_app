@@ -28,6 +28,8 @@ import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_scre
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.parseTextDocsContent
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readPdfFile
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.readTxtFile
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun SelectFileOptionScreen(
@@ -68,7 +70,7 @@ fun SelectFileOptionScreen(
                     images = content.filterIsInstance<TextDocsContent.Image>().map {
                         DocumentModel.ImageData(it.data, it.width, it.height)
                     },
-                    tables = content.filterIsInstance<TextDocsContent.Table>().map { it.rows },
+                    tables = content.filterIsInstance<TextDocsContent.Table>().map { Json.encodeToString(it.rows) },
                     format = formatType,
                     fileUri = fileUri,
                     backgroundColor = backgroundColor
@@ -126,8 +128,7 @@ fun SelectFileOptionScreen(
                 TextFileContent(
                     documentId = savedDocumentId ?: "",
                     initialContent = initialContent,
-                    format = formatType.name.lowercase(),
-                    onGeminiResponse = { /* Handle Gemini response if needed */ }
+                    format = formatType.name.lowercase()
                 )
             }
         }

@@ -31,14 +31,16 @@ import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_scre
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.data.TextDocsContent
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsTableView
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsImageContent
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import android.util.Log
 
 @Composable
 fun TextFileContent(
     documentId: String,
     initialContent: List<TextDocsContent>?,
     format: String,
-    modifier: Modifier = Modifier,
-    onGeminiResponse: (String) -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val viewModel: DocumentListViewModel = viewModel()
     var document by remember { mutableStateOf<DocumentModel?>(null) }
@@ -74,8 +76,14 @@ fun TextFileContent(
                             errorMessage = "Error decoding image: ${e.localizedMessage}"
                         }
                     }
-                    document!!.tables.forEach { table ->
-                        add(TextDocsContent.Table(table))
+                    document!!.tables.forEach { tableJson ->
+                        try {
+                            val table = Json.decodeFromString<List<List<String>>>(tableJson)
+                            add(TextDocsContent.Table(table))
+                        } catch (e: Exception) {
+                            Log.e("TextFileContent", "Error decoding table", e)
+                            errorMessage = "Error decoding table: ${e.localizedMessage}"
+                        }
                     }
                 }
             }
@@ -91,22 +99,15 @@ fun TextFileContent(
             horizontalArrangement = Arrangement.spacedBy(7.dp),
             contentPadding = PaddingValues(start = 10.dp)
         ) {
-            items(optionButtons + OptionButtonInfo(
-                image = R.drawable.logo,
-                text = "Ask Gemini",
-                color = 0xFF4285F4.toInt(),
-                textColor = 0xFFFFFFFF.toInt()
-            )) { item ->
+            items(optionButtons) { item ->
                 OptionButton(
                     image = item.image,
                     text = item.text,
                     color = item.color,
-                    textColor = item.textColor,
-                    onClick = { /* Gemini functionality can be added here */ }
+                    textColor = item.textColor
                 )
             }
         }
-
         Spacer(Modifier.height(30.dp))
         Text(
             "Original",
@@ -127,7 +128,7 @@ fun TextFileContent(
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth(1f)
                     .padding(horizontal = 18.dp)
             ) {
                 itemsIndexed(content) { index, item ->
@@ -138,16 +139,22 @@ fun TextFileContent(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
+
                         is TextDocsContent.Paragraph -> {
                             Text(
                                 text = item.text,
                                 modifier = Modifier.padding(vertical = 4.dp),
-                                style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF6B6D78))
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = Color(
+                                        0xFF6B6D78
+                                    )
+                                )
                             )
                             if (index < content.lastIndex) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
+
                         is TextDocsContent.Table -> {
                             TextDocsTableView(table = item)
                             if (index < content.lastIndex) {

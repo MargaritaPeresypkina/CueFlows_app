@@ -1,37 +1,15 @@
 package com.example.cueflowsapp.main_screen.parcing.dynamic_screen
 
-import android.R.attr.onClick
-import android.net.http.UploadDataSink
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonElevation
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -39,15 +17,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cueflowsapp.R
 import com.example.cueflowsapp.ui.theme.DarkGrey1
 import com.example.cueflowsapp.ui.theme.UploadButton
 import com.example.cueflowsapp.ui.theme.uploadedFile
-import java.nio.file.WatchEvent
 
 @Composable
 fun FileUploadDialog(
@@ -64,80 +39,74 @@ fun FileUploadDialog(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Black.copy(alpha = 0.5f))
-    )
-            {
-                Column(
+    ) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(0.8f)
+                .background(Color.White, shape = RoundedCornerShape(20.dp))
+                .padding(horizontal = 35.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow),
+                    contentDescription = "Close",
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxWidth(0.8f)
-                        .background(Color.White, shape = RoundedCornerShape(20.dp))
-                        .padding(horizontal = 35.dp, vertical = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+                        .align(Alignment.TopStart)
+                        .padding(5.dp)
+                        .size(20.dp)
+                        .clickable { onDismiss() },
+                    tint = Color.Black
+                )
+                Text(
+                    dialogName,
+                    fontSize = 30.sp,
+                    fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                    textAlign = TextAlign.Center,
+                    color = DarkGrey1,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-                    Box(
-                       modifier = Modifier.fillMaxWidth()
-                    ){
+            Spacer(Modifier.height(15.dp))
 
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow),
-                            contentDescription = "Close",
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .padding(5.dp)
-                                .size(20.dp)
-                                .clickable { onDismiss() },
-                            tint = Color.Black
-                        )
-                        Text(
-                            dialogName,
-                            fontSize = 30.sp,
-                            fontFamily = FontFamily(Font(R.font.inter_semibold)),
-                            textAlign = TextAlign.Center,
-                            color = DarkGrey1,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+            Text(
+                "Please upload your file",
+                fontSize = 17.sp,
+                fontFamily = FontFamily(Font(R.font.inter_regular)),
+                textAlign = TextAlign.Center,
+                color = DarkGrey1
+            )
 
+            Spacer(Modifier.height(15.dp))
 
-                    Spacer(Modifier.height(15.dp))
-
-                    Text(
-                        "Please upload your file",
-                        fontSize = 17.sp,
-                        fontFamily = FontFamily(Font(R.font.inter_regular)),
-                        textAlign = TextAlign.Center,
-                        color = DarkGrey1
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                Spacer(Modifier.height(15.dp))
+                Text("Uploading...", color = DarkGrey1)
+            } else if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            } else when {
+                isFileUploaded -> {
+                    UploadedStateContent(
+                        fileName = fileName,
+                        onUploadClick = onUploadClick,
+                        onNextStepClick = onNextStepClick
                     )
-
-                    Spacer(Modifier.height(15.dp))
-
-                    if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(50.dp))
-                        Spacer(Modifier.height(15.dp))
-                        Text("Uploading...", color = DarkGrey1)
-                    }
-                    else if (errorMessage != null) {
-                        Text(
-                            text = errorMessage,
-                            color = Color.Red,
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                    }
-                    else when {
-                        isFileUploaded -> {
-                            UploadedStateContent(
-                                fileName = fileName,
-                                onUploadClick = onUploadClick,
-                                onNextStepClick = onNextStepClick
-                            )
-                        }
-                        else -> {
-                            InitialStateContent(onUploadClick = onUploadClick)
-                        }
-                    }
+                }
+                else -> {
+                    InitialStateContent(onUploadClick = onUploadClick)
                 }
             }
+        }
+    }
 }
 
 @Composable
@@ -180,8 +149,8 @@ private fun UploadedStateContent(
                     .padding(horizontal = 18.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                 val MAX_FILE_NAME_LINES = 3
-                 val MAX_TOTAL_LINES = 4
+                val MAX_FILE_NAME_LINES = 3
+                val MAX_TOTAL_LINES = 4
 
                 val suffix = " was uploaded"
 
@@ -221,7 +190,6 @@ private fun UploadedStateContent(
                     tint = Color(0xFF6CB28E),
                     modifier = Modifier.size(18.dp)
                 )
-                }
             }
         }
 
@@ -239,7 +207,7 @@ private fun UploadedStateContent(
             textAlign = TextAlign.Center
         )
     }
-
+}
 
 @Composable
 private fun InitialStateContent(onUploadClick: () -> Unit) {

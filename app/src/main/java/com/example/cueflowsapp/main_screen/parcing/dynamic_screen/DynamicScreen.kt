@@ -48,6 +48,7 @@ fun DynamicScreen(
     val spaceBetweenButtons = 9.dp
     val buttonWidth = (screenWidthDp - (horizontalSpacing * 2 + spaceBetweenButtons)) / 2
 
+
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
         var currentButton by remember { mutableStateOf<ActionButton?>(null) }
@@ -58,6 +59,16 @@ fun DynamicScreen(
         var isLoading by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
 
+        val fileUploadViewModel: FileUploadViewModel = viewModel()
+        LaunchedEffect(errorMessage) {
+            if (errorMessage != null) {
+                fileUploadViewModel.updateUploadState(
+                    isUploaded = false,
+                    fileName = null,
+                    errorMessage = errorMessage
+                )
+            }
+        }
         val filePickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),
             onResult = { uri ->

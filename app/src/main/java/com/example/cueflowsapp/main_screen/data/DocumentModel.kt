@@ -1,27 +1,30 @@
 package com.example.cueflowsapp.main_screen.data
 
+import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.Immutable
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.DocumentFormat
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import android.util.Base64
-import com.google.firebase.firestore.snapshots
+import com.google.firebase.auth.FirebaseAuth
 
 @Serializable
 @Immutable
@@ -30,7 +33,7 @@ data class DocumentModel(
     val title: String = "",
     val content: String = "",
     val images: List<ImageData> = emptyList(),
-    val tables: List<List<List<String>>> = emptyList(),
+    val tables: List<String> = emptyList(), // JSON serialized tables
     val format: DocumentFormat = DocumentFormat.TXT,
     val fileUri: String = "",
     val backgroundColor: Int = 0,
@@ -38,12 +41,32 @@ data class DocumentModel(
 ) {
     constructor() : this("", "", "", emptyList(), emptyList(), DocumentFormat.TXT, "", 0, 0L)
 
+    // Helper to convert List<List<List<String>>> to List<String> (JSON strings)
+    fun serializeTables(tables: List<List<List<String>>>): List<String> {
+        return tables.map { table ->
+            Json.encodeToString(table)
+        }
+    }
+
+    // Helper to deserialize List<String> back to List<List<List<String>>>
+    fun deserializeTables(): List<List<List<String>>> {
+        return tables.mapNotNull { tableJson ->
+            try {
+                Json.decodeFromString<List<List<String>>>(tableJson)
+            } catch (e: Exception) {
+                Log.e("DocumentModel", "Error deserializing table", e)
+                null
+            }
+        }
+    }
+
     @Serializable
     data class ImageData(
-        val data: String, // Base64 encoded string for Firestore compatibility
-        val width: Int,
-        val height: Int
+        val data: String = "", // Default empty string for no-arg constructor
+        val width: Int = 0,    // Default 0 for no-arg constructor
+        val height: Int = 0    // Default 0 for no-arg constructor
     ) {
+        // Constructor for creating ImageData from ByteArray
         constructor(byteArray: ByteArray, width: Int, height: Int) : this(
             Base64.encodeToString(byteArray, Base64.DEFAULT),
             width,

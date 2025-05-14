@@ -31,17 +31,11 @@ fun OptionButton(
     text: String,
     color: Int,
     textColor: Int,
-    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .clip(shape = RoundedCornerShape(27.dp))
-            .background(color = Color(color)).clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                onClick()
-            }
+            .background(color = Color(color))
     ){
         Row(
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp),
