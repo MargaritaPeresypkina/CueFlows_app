@@ -13,11 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.cueflowsapp.login.data.StartScreenObject
 import com.example.cueflowsapp.main_screen.data.MainScreenDataObject
 import com.example.cueflowsapp.splash_screen.SplashScreen
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()

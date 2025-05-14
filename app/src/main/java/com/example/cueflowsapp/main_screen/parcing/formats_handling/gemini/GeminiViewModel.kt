@@ -15,7 +15,6 @@ class GeminiViewModel : ViewModel() {
     private val apiKey = BuildConfig.GEMINI_API_KEY
 
     private val _summary = MutableStateFlow<String?>(null)
-
     val summary: StateFlow<String?> = _summary.asStateFlow()
 
     private val _keyTerms = MutableStateFlow<String?>(null)
@@ -32,7 +31,7 @@ class GeminiViewModel : ViewModel() {
                         GeminiRequest.Content(
                             parts = listOf(
                                 GeminiRequest.Content.Part(
-                                    text = "Generate a concise summary of the following text:\n$text"
+                                    text = "Составь краткое резюме следующего текста, если необходимо разделяй ответ на абзацы:\n$text"
                                 )
                             )
                         )
@@ -56,7 +55,7 @@ class GeminiViewModel : ViewModel() {
                         GeminiRequest.Content(
                             parts = listOf(
                                 GeminiRequest.Content.Part(
-                                    text = "Extract key terms and their definitions from the following text:\n$text"
+                                    text = "Проанализируйте следующий текст и найдите слова, которые могут потребовать объяснения. Для каждого слова дай краткое определение. Оформите в виде списка, каждый элемент которого имеет вид: '- Слово - Определение».'. Если встретится аббревиатура, но не делай из неё определения, если из контекста не понятно, что она значит \n\nТекст:\n$text"
                                 )
                             )
                         )
@@ -64,6 +63,7 @@ class GeminiViewModel : ViewModel() {
                 )
                 val response = RetrofitClient.geminiApiService.generateContent(apiKey, request)
                 val keyTermsText = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                Log.d("GeminiViewModel", "Key Terms Response: $keyTermsText") // Add logging
                 _keyTerms.value = keyTermsText ?: "No key terms generated"
             } catch (e: Exception) {
                 _error.value = "Error generating key terms: ${e.localizedMessage}"

@@ -10,18 +10,22 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,7 +51,6 @@ fun DynamicScreen(
     val horizontalSpacing = 37.dp
     val spaceBetweenButtons = 9.dp
     val buttonWidth = (screenWidthDp - (horizontalSpacing * 2 + spaceBetweenButtons)) / 2
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
@@ -267,7 +270,7 @@ fun DynamicScreen(
                         if (state.isUploaded && state.fileUri != null && state.backgroundColor != null && state.formatType != null) {
                             onNavigateToDocumentViewer(
                                 NavRoutes.DocumentViewer(
-                                    documentId = null, // Will be set after saving in SelectFileOptionScreen
+                                    documentId = null,
                                     fileUri = state.fileUri,
                                     fileName = state.fileName ?: "Document",
                                     backgroundColor = state.backgroundColor,
@@ -288,6 +291,49 @@ fun DynamicScreen(
                 isLoading = isLoading,
                 errorMessage = errorMessage
             )
+        }
+        if (content.screenName != "Text Docs") {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)).padding(horizontal = 30.dp, vertical = 55.dp)
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.arrow),
+                            contentDescription = "arrow",
+                            modifier = Modifier.size(20.dp).clickable{onNavigateToPreviousScreen()}
+                        )
+                        Text(
+                            "Oops...",
+                            color = Color.Black,
+                            fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+
+                    Text(
+                        text = "The functionality for ${content.title} is not yet available.\n Stay tuned for more news in the near future.",
+                        color = Color.Black,
+                        fontFamily = FontFamily(Font(R.font.inter_regular)),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
         }
     }
 }

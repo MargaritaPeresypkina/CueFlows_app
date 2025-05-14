@@ -1,5 +1,8 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Base64
 import android.util.Log
 import androidx.compose.foundation.background
@@ -10,8 +13,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -41,8 +46,10 @@ fun TextFileContent(
 ) {
     val documentListViewModel: DocumentListViewModel = viewModel()
     val geminiViewModel: GeminiViewModel = viewModel()
+    val context = LocalContext.current
     var document by remember { mutableStateOf<DocumentModel?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
     var viewMode by remember { mutableStateOf<TextDocsViewMode>(TextDocsViewMode.Original) }
 
     // Collect Gemini API states
@@ -50,8 +57,23 @@ fun TextFileContent(
     val keyTerms by geminiViewModel.keyTerms.collectAsState()
     val geminiError by geminiViewModel.error.collectAsState()
 
-    LaunchedEffect(documentId) {
+    // Check network connectivity
+    val isNetworkAvailable = remember {
+        derivedStateOf {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = connectivityManager.activeNetwork
+            val capabilities = connectivityManager.getNetworkCapabilities(network)
+            capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        }
+    }
+
+    LaunchedEffect(documentId, isNetworkAvailable.value) {
         if (documentId.isNotEmpty() && initialContent == null) {
+            if (!isNetworkAvailable.value) {
+                errorMessage = "No internet connection. Please check your network and try again."
+                return@LaunchedEffect
+            }
+            isLoading = true
             try {
                 document = documentListViewModel.getDocumentById(documentId)
                 if (document == null) {
@@ -63,6 +85,9 @@ fun TextFileContent(
                 }
             } catch (e: Exception) {
                 errorMessage = "Error loading document: ${e.localizedMessage}"
+                Log.e("TextFileContent", "Error fetching document", e)
+            } finally {
+                isLoading = false
             }
         } else if (initialContent != null) {
             // Trigger Gemini API calls for initial content
@@ -90,9 +115,10 @@ fun TextFileContent(
                     color = item.color,
                     textColor = item.textColor,
                     onClick = {
+                        Log.d("MyLog", "$item.text")
                         viewMode = when (item.text) {
                             "Summary" -> TextDocsViewMode.Summary
-                            "Key Terms" -> TextDocsViewMode.KeyTerms
+                            "Key terms" -> TextDocsViewMode.KeyTerms
                             else -> TextDocsViewMode.Original
                         }
                     }
@@ -119,6 +145,12 @@ fun TextFileContent(
                 text = errorMessage ?: geminiError ?: "",
                 color = Color.Red,
                 modifier = Modifier.padding(horizontal = 18.dp)
+            )
+        } else if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
             )
         } else {
             when (viewMode) {
@@ -150,7 +182,7 @@ fun TextFileContent(
                                     }
                                 }
                             }
-                            else -> listOf(TextDocsContent.Paragraph("Loading document..."))
+                            else -> listOf(TextDocsContent.Paragraph("No content available"))
                         }
                     }
 
@@ -200,7 +232,7 @@ fun TextFileContent(
                                 text = summary ?: "Generating summary...",
                                 modifier = Modifier.padding(vertical = 4.dp),
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = Color(0xFF6B6D78)
+                                    color = Color(0xFF3E3E41)
                                 )
                             )
                         }
@@ -212,14 +244,40 @@ fun TextFileContent(
                             .fillMaxWidth(1f)
                             .padding(horizontal = 18.dp)
                     ) {
-                        item {
-                            Text(
-                                text = keyTerms ?: "Generating key terms...",
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = Color(0xFF6B6D78)
+                        if (keyTerms != null) {
+                            val terms = keyTerms!!.split("\n").filter { it.isNotBlank() && it.startsWith("- ") }
+                            Log.d("TextFileContent", "Key Terms List: $terms")
+                            if (terms.isNotEmpty()) {
+                                items(terms) { term ->
+                                    Text(
+                                        text = term,
+                                        modifier = Modifier.padding(vertical = 4.dp),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            color = Color(0xFF3E3E41)
+                                        )
+                                    )
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        text = keyTerms!!, // Fallback to raw response
+                                        modifier = Modifier.padding(vertical = 4.dp),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            color = Color(0xFF3E3E41)
+                                        )
+                                    )
+                                }
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = "Generating key terms...",
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = Color(0xFF3E3E41)
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
