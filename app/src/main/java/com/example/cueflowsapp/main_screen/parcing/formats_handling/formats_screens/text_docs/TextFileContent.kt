@@ -1,7 +1,7 @@
 package com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs
 
 import android.util.Base64
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,10 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -26,14 +22,15 @@ import com.example.cueflowsapp.R
 import com.example.cueflowsapp.main_screen.data.DocumentListViewModel
 import com.example.cueflowsapp.main_screen.data.DocumentModel
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.OptionButtonInfo
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.TextDocsViewMode
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.data.optionButtons
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.components.OptionButton
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.data.TextDocsContent
-import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsTableView
 import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsImageContent
-import kotlinx.serialization.json.Json
+import com.example.cueflowsapp.main_screen.parcing.formats_handling.formats_screens.text_docs.handle_functions.TextDocsTableView
+import com.example.cueflowsapp.network.GeminiViewModel
 import kotlinx.serialization.decodeFromString
-import android.util.Log
+import kotlinx.serialization.json.Json
 
 @Composable
 fun TextFileContent(
@@ -42,56 +39,43 @@ fun TextFileContent(
     format: String,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: DocumentListViewModel = viewModel()
+    val documentListViewModel: DocumentListViewModel = viewModel()
+    val geminiViewModel: GeminiViewModel = viewModel()
     var document by remember { mutableStateOf<DocumentModel?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var viewMode by remember { mutableStateOf<TextDocsViewMode>(TextDocsViewMode.Original) }
+
+    // Collect Gemini API states
+    val summary by geminiViewModel.summary.collectAsState()
+    val keyTerms by geminiViewModel.keyTerms.collectAsState()
+    val geminiError by geminiViewModel.error.collectAsState()
 
     LaunchedEffect(documentId) {
         if (documentId.isNotEmpty() && initialContent == null) {
             try {
-                document = viewModel
-                    .getDocumentById(documentId)
+                document = documentListViewModel.getDocumentById(documentId)
                 if (document == null) {
                     errorMessage = "Document not found in database"
+                } else {
+                    // Trigger Gemini API calls when document is loaded
+                    geminiViewModel.generateSummary(document!!.content)
+                    geminiViewModel.generateKeyTerms(document!!.content)
                 }
             } catch (e: Exception) {
                 errorMessage = "Error loading document: ${e.localizedMessage}"
             }
-        }
-    }
-
-    val content = remember(document, initialContent) {
-        when {
-            initialContent != null -> initialContent
-            document != null -> {
-                buildList {
-                    if (document!!.content.isNotBlank()) {
-                        add(TextDocsContent.Paragraph(document!!.content))
-                    }
-                    document!!.images.forEach { img ->
-                        try {
-                            val imageData = img.toByteArray()
-                            add(TextDocsContent.Image(imageData, img.width, img.height))
-                        } catch (e: Exception) {
-                            errorMessage = "Error decoding image: ${e.localizedMessage}"
-                        }
-                    }
-                    document!!.tables.forEach { tableJson ->
-                        try {
-                            val table = Json.decodeFromString<List<List<String>>>(tableJson)
-                            add(TextDocsContent.Table(table))
-                        } catch (e: Exception) {
-                            Log.e("TextFileContent", "Error decoding table", e)
-                            errorMessage = "Error decoding table: ${e.localizedMessage}"
-                        }
-                    }
-                }
-            }
-            else -> listOf(TextDocsContent.Paragraph("Loading document..."))
+        } else if (initialContent != null) {
+            // Trigger Gemini API calls for initial content
+            val textContent = initialContent
+                .filterIsInstance<TextDocsContent.Paragraph>()
+                .joinToString("\n\n") { it.text }
+            geminiViewModel.generateSummary(textContent)
+            geminiViewModel.generateKeyTerms(textContent)
         }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // Tab buttons
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,13 +88,24 @@ fun TextFileContent(
                     image = item.image,
                     text = item.text,
                     color = item.color,
-                    textColor = item.textColor
+                    textColor = item.textColor,
+                    onClick = {
+                        viewMode = when (item.text) {
+                            "Summary" -> TextDocsViewMode.Summary
+                            "Key Terms" -> TextDocsViewMode.KeyTerms
+                            else -> TextDocsViewMode.Original
+                        }
+                    }
                 )
             }
         }
         Spacer(Modifier.height(30.dp))
         Text(
-            "Original",
+            text = when (viewMode) {
+                TextDocsViewMode.Original -> "Original"
+                TextDocsViewMode.Summary -> "Summary"
+                TextDocsViewMode.KeyTerms -> "Key Terms"
+            },
             fontFamily = FontFamily(Font(R.font.inter_semibold)),
             color = Color(0xFF343434),
             fontSize = 18.sp,
@@ -119,47 +114,112 @@ fun TextFileContent(
         )
         Spacer(Modifier.height(13.dp))
 
-        if (errorMessage != null) {
+        if (errorMessage != null || geminiError != null) {
             Text(
-                text = errorMessage ?: "",
+                text = errorMessage ?: geminiError ?: "",
                 color = Color.Red,
                 modifier = Modifier.padding(horizontal = 18.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .padding(horizontal = 18.dp)
-            ) {
-                itemsIndexed(content) { index, item ->
-                    when (item) {
-                        is TextDocsContent.Image -> {
-                            TextDocsImageContent(image = item)
-                            if (index < content.lastIndex && content[index + 1] !is TextDocsContent.Image) {
-                                Spacer(modifier = Modifier.height(8.dp))
+            when (viewMode) {
+                TextDocsViewMode.Original -> {
+                    val content = remember(document, initialContent) {
+                        when {
+                            initialContent != null -> initialContent
+                            document != null -> {
+                                buildList {
+                                    if (document!!.content.isNotBlank()) {
+                                        add(TextDocsContent.Paragraph(document!!.content))
+                                    }
+                                    document!!.images.forEach { img ->
+                                        try {
+                                            val imageData = img.toByteArray()
+                                            add(TextDocsContent.Image(imageData, img.width, img.height))
+                                        } catch (e: Exception) {
+                                            errorMessage = "Error decoding image: ${e.localizedMessage}"
+                                        }
+                                    }
+                                    document!!.tables.forEach { tableJson ->
+                                        try {
+                                            val table = Json.decodeFromString<List<List<String>>>(tableJson)
+                                            add(TextDocsContent.Table(table))
+                                        } catch (e: Exception) {
+                                            Log.e("TextFileContent", "Error decoding table", e)
+                                            errorMessage = "Error decoding table: ${e.localizedMessage}"
+                                        }
+                                    }
+                                }
+                            }
+                            else -> listOf(TextDocsContent.Paragraph("Loading document..."))
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .padding(horizontal = 18.dp)
+                    ) {
+                        itemsIndexed(content) { index, item ->
+                            when (item) {
+                                is TextDocsContent.Image -> {
+                                    TextDocsImageContent(image = item)
+                                    if (index < content.lastIndex && content[index + 1] !is TextDocsContent.Image) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
+                                }
+                                is TextDocsContent.Paragraph -> {
+                                    Text(
+                                        text = item.text,
+                                        modifier = Modifier.padding(vertical = 4.dp),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            color = Color(0xFF6B6D78)
+                                        )
+                                    )
+                                    if (index < content.lastIndex) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
+                                }
+                                is TextDocsContent.Table -> {
+                                    TextDocsTableView(table = item)
+                                    if (index < content.lastIndex) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                    }
+                                }
                             }
                         }
-
-                        is TextDocsContent.Paragraph -> {
+                    }
+                }
+                TextDocsViewMode.Summary -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .padding(horizontal = 18.dp)
+                    ) {
+                        item {
                             Text(
-                                text = item.text,
+                                text = summary ?: "Generating summary...",
                                 modifier = Modifier.padding(vertical = 4.dp),
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = Color(
-                                        0xFF6B6D78
-                                    )
+                                    color = Color(0xFF6B6D78)
                                 )
                             )
-                            if (index < content.lastIndex) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
                         }
-
-                        is TextDocsContent.Table -> {
-                            TextDocsTableView(table = item)
-                            if (index < content.lastIndex) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
+                    }
+                }
+                TextDocsViewMode.KeyTerms -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .padding(horizontal = 18.dp)
+                    ) {
+                        item {
+                            Text(
+                                text = keyTerms ?: "Generating key terms...",
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = Color(0xFF6B6D78)
+                                )
+                            )
                         }
                     }
                 }

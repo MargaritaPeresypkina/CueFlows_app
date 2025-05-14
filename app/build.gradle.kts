@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +20,14 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        val localProperties = Properties() // Use Properties directly
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+
+        // Add GEMINI_API_KEY to BuildConfig
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GOOGLE_API_KEY", "\"${project.properties["GOOGLE_API_KEY"]}\"")
     }
@@ -59,11 +69,15 @@ android {
 
 
 dependencies {
-
     implementation(libs.pdfbox.android)
     implementation(libs.poi.ooxml)
     implementation(libs.pdfbox)
-    implementation(libs.compressor)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
+    implementation(libs.retrofit2.kotlinx.serialization.converter)
+
+
+
 
     implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))
