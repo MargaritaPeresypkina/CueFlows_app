@@ -43,7 +43,6 @@ fun ListScreen(navController: NavHostController) {
     val documents by viewModel.documents.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
 
-    // Filter documents based on search query
     val filteredDocuments = documents.filter {
         it.title.contains(searchQuery, ignoreCase = true)
     }
@@ -51,9 +50,8 @@ fun ListScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5)) // Light background for modern look
+            .background(Color(0xFFF5F5F5))
     ) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,13 +74,12 @@ fun ListScreen(navController: NavHostController) {
             )
         }
 
-        // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .padding(horizontal = 16.dp, vertical = 12.dp)
                 .background(Color.White),
             placeholder = { Text("Search documents...") },
@@ -90,7 +87,8 @@ fun ListScreen(navController: NavHostController) {
                 Icon(
                     painter = painterResource(id = R.drawable.search_ic),
                     contentDescription = "Search",
-                    tint = Color(0xFF6B6D78)
+                    tint = Color(0xFF6B6D78),
+                    modifier = Modifier.size(20.dp)
                 )
             },
             singleLine = true,
@@ -105,7 +103,6 @@ fun ListScreen(navController: NavHostController) {
 
         Spacer(Modifier.height(8.dp))
 
-        // Document List
         if (filteredDocuments.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -150,11 +147,9 @@ fun ListScreen(navController: NavHostController) {
 
 @Composable
 fun DocumentItem(document: DocumentModel, onClick: () -> Unit) {
-    // Format creation date
     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(document.createdAt))
 
-    // Get thumbnail (first image or format-specific icon)
     val thumbnailBitmap = remember(document.images) {
         if (document.images.isNotEmpty()) {
             try {
@@ -186,7 +181,6 @@ fun DocumentItem(document: DocumentModel, onClick: () -> Unit) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail or Icon
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -234,7 +228,6 @@ fun DocumentItem(document: DocumentModel, onClick: () -> Unit) {
 
             Spacer(Modifier.width(12.dp))
 
-            // Document Details
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -277,7 +270,6 @@ fun DocumentItem(document: DocumentModel, onClick: () -> Unit) {
                 }
             }
 
-            // Trailing Icon
             Icon(
                 painter = painterResource(id = R.drawable.row),
                 contentDescription = "Open document",

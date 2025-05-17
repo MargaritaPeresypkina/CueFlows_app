@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -60,6 +61,7 @@ fun DynamicScreen(
         val uploadState = viewModel.uploadState.observeAsState(UploadState())
 
         var isLoading by remember { mutableStateOf(false) }
+        var isNavigating by remember { mutableStateOf(false) } // New state for navigation loading
         var errorMessage by remember { mutableStateOf<String?>(null) }
 
         val fileUploadViewModel: FileUploadViewModel = viewModel()
@@ -266,6 +268,7 @@ fun DynamicScreen(
                     }
                 },
                 onNextStepClick = {
+                    isNavigating = true
                     uploadState.value.let { state ->
                         if (state.isUploaded && state.fileUri != null && state.backgroundColor != null && state.formatType != null) {
                             onNavigateToDocumentViewer(
@@ -282,6 +285,7 @@ fun DynamicScreen(
                     showUploadDialog.value = false
                     viewModel.resetUploadState()
                     errorMessage = null
+                    isNavigating = false
                 },
                 onDismiss = {
                     showUploadDialog.value = false
@@ -312,7 +316,7 @@ fun DynamicScreen(
                         Image(
                             painter = painterResource(id = R.drawable.arrow),
                             contentDescription = "arrow",
-                            modifier = Modifier.size(20.dp).clickable{onNavigateToPreviousScreen()}
+                            modifier = Modifier.size(20.dp).clickable { onNavigateToPreviousScreen() }
                         )
                         Text(
                             "Oops...",
@@ -333,6 +337,20 @@ fun DynamicScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                 }
+            }
+        }
+
+        if (isNavigating) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = Color.Black,
+                    modifier = Modifier.size(50.dp)
+                )
             }
         }
     }

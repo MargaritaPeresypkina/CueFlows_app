@@ -42,46 +42,26 @@ fun TextFileContent(
     documentId: String,
     initialContent: List<TextDocsContent>?,
     format: String,
+    summary: String?,
+    keyTerms: String?,
+    geminiError: String?,
     modifier: Modifier = Modifier
 ) {
     val documentListViewModel: DocumentListViewModel = viewModel()
-    val geminiViewModel: GeminiViewModel = viewModel()
     val context = LocalContext.current
     var document by remember { mutableStateOf<DocumentModel?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var viewMode by remember { mutableStateOf<TextDocsViewMode>(TextDocsViewMode.Original) }
 
-    // Collect Gemini API states
-    val summary by geminiViewModel.summary.collectAsState()
-    val keyTerms by geminiViewModel.keyTerms.collectAsState()
-    val geminiError by geminiViewModel.error.collectAsState()
 
-    // Check network connectivity
-    val isNetworkAvailable = remember {
-        derivedStateOf {
-            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val network = connectivityManager.activeNetwork
-            val capabilities = connectivityManager.getNetworkCapabilities(network)
-            capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        }
-    }
-
-    LaunchedEffect(documentId, isNetworkAvailable.value) {
+    LaunchedEffect(documentId) {
         if (documentId.isNotEmpty() && initialContent == null) {
-            if (!isNetworkAvailable.value) {
-                errorMessage = "No internet connection. Please check your network and try again."
-                return@LaunchedEffect
-            }
             isLoading = true
             try {
                 document = documentListViewModel.getDocumentById(documentId)
                 if (document == null) {
                     errorMessage = "Document not found in database"
-                } else {
-                    // Trigger Gemini API calls when document is loaded
-                    geminiViewModel.generateSummary(document!!.content)
-                    geminiViewModel.generateKeyTerms(document!!.content)
                 }
             } catch (e: Exception) {
                 errorMessage = "Error loading document: ${e.localizedMessage}"
@@ -89,18 +69,10 @@ fun TextFileContent(
             } finally {
                 isLoading = false
             }
-        } else if (initialContent != null) {
-            // Trigger Gemini API calls for initial content
-            val textContent = initialContent
-                .filterIsInstance<TextDocsContent.Paragraph>()
-                .joinToString("\n\n") { it.text }
-            geminiViewModel.generateSummary(textContent)
-            geminiViewModel.generateKeyTerms(textContent)
         }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Tab buttons
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -260,7 +232,7 @@ fun TextFileContent(
                             } else {
                                 item {
                                     Text(
-                                        text = keyTerms!!, // Fallback to raw response
+                                        text = keyTerms!!,
                                         modifier = Modifier.padding(vertical = 4.dp),
                                         style = MaterialTheme.typography.bodyMedium.copy(
                                             color = Color(0xFF3E3E41)

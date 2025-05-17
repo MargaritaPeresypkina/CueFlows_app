@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">CueFlowsApp</string>
+    <string name="app_name">Cue Flows</string>
     <string name="title_activity_first_screen">FirstScreen</string>
+    <string name="facebook_app_id">1361731011748889</string>
+    <string name="fb_login_protocol_scheme">fb1361731011748889</string>
+    <string name="facebook_client_token">980c54fff99e13811c3bfd187f1bd52f</string>
+    <string name="google_client_id">108324626908-6n1mo9hr3pk3nqld1pia6ppivmrrb8vo.apps.googleusercontent.com</string>
 </resources>

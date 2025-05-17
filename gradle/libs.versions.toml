@@ -40,8 +40,15 @@ compressorVersion = "3.0.1"
 gsonVersion = "2.11.0"
 okhttpVersion = "4.12.0"
 retVersion = "1.0.0"
-
+playServicesAuth = "21.3.0"
+facebookLoginVersion = "18.0.3"
+facebookSdkVersion = "18.0.3"
 [libraries]
+
+facebook-android-sdk = { group = "com.facebook.android", name = "facebook-android-sdk", version.ref = "facebookSdkVersion" }
+
+facebook-login = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookLoginVersion" }
+
 logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptorVersion" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gsonVersion" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpVersion" }
@@ -99,6 +106,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]

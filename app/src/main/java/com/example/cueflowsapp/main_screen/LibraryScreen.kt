@@ -118,7 +118,7 @@ fun LibraryScreen(rootNavController: NavHostController) {
                 Text(
                     "Hello, ${auth.currentUser?.displayName ?: "user"}",
                     fontFamily = FontFamily(Font(R.font.inter_bold)),
-                    fontSize = 30.sp,
+                    fontSize = 25.sp,
                     color = LightBlack2,
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
@@ -146,7 +146,6 @@ fun LibraryScreen(rootNavController: NavHostController) {
                                 onClick = {
                                     val screenData = DynamicScreenObjectsDataLeft.find { it.screenName == data.text }
                                     screenData?.let {
-                                        // put screen id
                                         rootNavController.navigate(DynamicScreenDataObject(it.screenName))
                                     }
                                 }
@@ -167,7 +166,6 @@ fun LibraryScreen(rootNavController: NavHostController) {
                             onClick ={
                                 val screenData = DynamicScreenObjectsDataRight.find { it.screenName == data.text }
                                 screenData?.let {
-                                    // put screen id
                                     rootNavController.navigate(DynamicScreenDataObject(it.screenName))
                                 }
                             }

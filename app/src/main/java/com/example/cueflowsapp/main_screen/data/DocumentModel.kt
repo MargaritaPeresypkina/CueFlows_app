@@ -24,7 +24,6 @@ import kotlinx.serialization.json.Json
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.google.firebase.auth.FirebaseAuth
 
 @Serializable
 @Immutable
@@ -33,7 +32,7 @@ data class DocumentModel(
     val title: String = "",
     val content: String = "",
     val images: List<ImageData> = emptyList(),
-    val tables: List<String> = emptyList(), // JSON serialized tables
+    val tables: List<String> = emptyList(),
     val format: DocumentFormat = DocumentFormat.TXT,
     val fileUri: String = "",
     val backgroundColor: Int = 0,
@@ -41,14 +40,12 @@ data class DocumentModel(
 ) {
     constructor() : this("", "", "", emptyList(), emptyList(), DocumentFormat.TXT, "", 0, 0L)
 
-    // Helper to convert List<List<List<String>>> to List<String> (JSON strings)
     fun serializeTables(tables: List<List<List<String>>>): List<String> {
         return tables.map { table ->
             Json.encodeToString(table)
         }
     }
 
-    // Helper to deserialize List<String> back to List<List<List<String>>>
     fun deserializeTables(): List<List<List<String>>> {
         return tables.mapNotNull { tableJson ->
             try {
@@ -62,11 +59,11 @@ data class DocumentModel(
 
     @Serializable
     data class ImageData(
-        val data: String = "", // Default empty string for no-arg constructor
-        val width: Int = 0,    // Default 0 for no-arg constructor
-        val height: Int = 0    // Default 0 for no-arg constructor
+        val data: String = "",
+        val width: Int = 0,
+        val height: Int = 0
     ) {
-        // Constructor for creating ImageData from ByteArray
+
         constructor(byteArray: ByteArray, width: Int, height: Int) : this(
             Base64.encodeToString(byteArray, Base64.DEFAULT),
             width,
@@ -90,12 +87,35 @@ data class DocumentModel(
     }
 }
 
+@Serializable
+@Immutable
+data class UserModel(
+    val uid: String = "",
+    val email: String = "",
+    val username: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)
+
 class DocumentRepository {
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth = Firebase.auth
 
     private fun currentUserId(): String {
         return auth.currentUser?.uid ?: throw AuthRequiredException()
+    }
+
+    suspend fun saveUser(user: UserModel) {
+        try {
+            val userId = user.uid
+            val docRef = db.collection("users").document(userId)
+            docRef.set(user).await()
+        } catch (e: Exception) {
+            Log.e("DocumentRepository", "Failed to save user: ${e.message}", e)
+            if (e is com.google.firebase.firestore.FirebaseFirestoreException && e.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                throw RepositoryException("Insufficient permissions to save user data. Please check Firestore rules.", e)
+            }
+            throw RepositoryException("Failed to save user", e)
+        }
     }
 
     suspend fun saveDocument(document: DocumentModel): String {

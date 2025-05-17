@@ -1,5 +1,6 @@
 package com.example.cueflowsapp.main_screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,9 @@ fun GetStarted(
     onNavigateToLibraryScreen: () -> Unit
 ) {
     val auth = Firebase.auth
+    val user = auth.currentUser
+    Log.d("GetStarted", "User: ${user?.displayName}, Email: ${user?.email}, UID: ${user?.uid}")
+
     Box(modifier = Modifier.fillMaxSize().background(color = Background4)){
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -52,14 +56,12 @@ fun GetStarted(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.offset(y = (-130).dp)
                 )
-
             }
         }
         Column(
             modifier = Modifier.fillMaxSize().padding(top = 55.dp, start = 20.dp, end = 20.dp, bottom = 60.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,9 +96,9 @@ fun GetStarted(
                     )
                 }
                 Text(
-                    "Hi ${auth.currentUser?.displayName ?: "friend"}, Welcome",
+                    "Hi ${user?.displayName?.length?.let { if(it < 10) user.displayName else "friend" }}, Welcome",
                     color = BeidgeFont4,
-                    fontSize = 30.sp,
+                    fontSize = 25.sp,
                     fontFamily = FontFamily(Font(R.font.inter_bold)),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -145,5 +147,3 @@ fun GetStarted(
         }
     }
 }
-
-

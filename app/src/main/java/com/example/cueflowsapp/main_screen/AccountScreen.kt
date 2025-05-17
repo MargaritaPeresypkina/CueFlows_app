@@ -100,19 +100,16 @@ fun AccountScreen(
     val showDialog = remember { mutableStateOf(false) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
-    // Profile image state
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     val storage = Firebase.storage
     val storageRef = storage.reference
     val profileImageRef = currentUser?.uid?.let { storageRef.child("profile_images/$it.jpg") }
 
-    // Image picker launcher
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             profileImageUri = it
-            // Upload the image to Firebase Storage
             coroutineScope.launch {
                 try {
                     profileImageRef?.putFile(it)?.await()
@@ -124,7 +121,6 @@ fun AccountScreen(
         }
     }
 
-    // Load profile image when screen appears
     LaunchedEffect(Unit) {
         try {
             val downloadUrl = profileImageRef?.downloadUrl?.await()
@@ -200,7 +196,7 @@ fun AccountScreen(
 
                     Text(
                         text = currentUser?.displayName ?: "User",
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.inter_semibold)),
                         color = Color(0xFF682C9E)
                     )
@@ -213,7 +209,7 @@ fun AccountScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(23.dp))
 
                 // Account options
                 AccountOptionItem(
@@ -230,9 +226,8 @@ fun AccountScreen(
                     onClick = { }
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Action buttons
                 Column(
                     modifier = Modifier
                         .fillMaxWidth().padding(bottom = 60.dp)
@@ -296,7 +291,6 @@ fun AccountScreen(
 
 
 
-            // Delete account dialog
             if (showDialog.value) {
                 AlertDialog(
                     onDismissRequest = { showDialog.value = false },
@@ -403,14 +397,9 @@ private suspend fun deleteAccount(
     onError: (String) -> Unit
 ) {
     try {
-        // 1. Реаутентификация
         val credential = EmailAuthProvider.getCredential(email, password)
         auth.currentUser?.reauthenticate(credential)?.await()
-
-        // 2. Удаление аккаунта
         auth.currentUser?.delete()?.await()
-
-        // 3. Успешное завершение
         onSuccess()
     } catch (e: Exception) {
         val errorMsg = when (e) {
